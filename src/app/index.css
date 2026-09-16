@@ -1,0 +1,148 @@
+@import "tailwindcss";
+@import "pretendard/dist/web/variable/pretendardvariable.css";
+
+html,
+.overflow-y-auto {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+html::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+@theme {
+  --font-sans:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", sans-serif;
+
+  /* primary */
+  --color-primary-50: #eef3f0;
+  --color-primary-100: #d6e4dd;
+  --color-primary-200: #b0cbbe;
+  --color-primary-300: #86af9c;
+  --color-primary-400: #628f7b;
+  --color-primary-500: #4a7362;
+  --color-primary-600: #3b5d50;
+  --color-primary-700: #2a4438;
+  --color-primary-800: #1d2f27;
+  --color-primary-900: #121d18;
+
+  /* neutral — true gray, no warm/cool tint */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+
+  /* error — derived from primary's lightness curve */
+  --color-error-100: #edcfcd;
+  --color-error-300: #cb726a;
+  --color-error-500: #8c3931;
+  --color-error-700: #51211d;
+  --color-error-900: #230e0c;
+
+  /* warning — derived from primary's lightness curve */
+  --color-warning-100: #efe2cb;
+  --color-warning-300: #cfa866;
+  --color-warning-500: #906c2d;
+  --color-warning-700: #543f1a;
+  --color-warning-900: #241b0b;
+
+  /* info — derived from primary's lightness curve */
+  --color-info-100: #cfdceb;
+  --color-info-300: #7096c5;
+  --color-info-500: #375b86;
+  --color-info-700: #20354e;
+  --color-info-900: #0e1721;
+
+  /* success — derived from primary's lightness curve */
+  --color-success-100: #d2e8dc;
+  --color-success-300: #7abb98;
+  --color-success-500: #407d5c;
+  --color-success-700: #254936;
+  --color-success-900: #101f17;
+
+  /* typography */
+  --text-display-large: 3.5625rem;
+  --text-display-large--line-height: 4rem;
+  --text-display-large--letter-spacing: -0.25px;
+  --text-display-large--font-weight: 400;
+
+  --text-display-medium: 2.8125rem;
+  --text-display-medium--line-height: 3.25rem;
+  --text-display-medium--letter-spacing: 0px;
+  --text-display-medium--font-weight: 400;
+
+  --text-display-small: 2.25rem;
+  --text-display-small--line-height: 2.75rem;
+  --text-display-small--letter-spacing: 0px;
+  --text-display-small--font-weight: 400;
+
+  --text-headline-large: 2rem;
+  --text-headline-large--line-height: 2.5rem;
+  --text-headline-large--letter-spacing: 0px;
+  --text-headline-large--font-weight: 400;
+
+  --text-headline-medium: 1.75rem;
+  --text-headline-medium--line-height: 2.25rem;
+  --text-headline-medium--letter-spacing: 0px;
+  --text-headline-medium--font-weight: 400;
+
+  --text-headline-small: 1.5rem;
+  --text-headline-small--line-height: 2rem;
+  --text-headline-small--letter-spacing: 0px;
+  --text-headline-small--font-weight: 400;
+
+  --text-title-large: 1.375rem;
+  --text-title-large--line-height: 1.75rem;
+  --text-title-large--letter-spacing: 0px;
+  --text-title-large--font-weight: 400;
+
+  --text-title-medium: 1rem;
+  --text-title-medium--line-height: 1.5rem;
+  --text-title-medium--letter-spacing: 0.15px;
+  --text-title-medium--font-weight: 500;
+
+  --text-title-small: 0.875rem;
+  --text-title-small--line-height: 1.25rem;
+  --text-title-small--letter-spacing: 0.1px;
+  --text-title-small--font-weight: 500;
+
+  --text-body-large: 1rem;
+  --text-body-large--line-height: 1.5rem;
+  --text-body-large--letter-spacing: 0.5px;
+  --text-body-large--font-weight: 400;
+
+  --text-body-medium: 0.875rem;
+  --text-body-medium--line-height: 1.25rem;
+  --text-body-medium--letter-spacing: 0.25px;
+  --text-body-medium--font-weight: 400;
+
+  --text-body-small: 0.75rem;
+  --text-body-small--line-height: 1rem;
+  --text-body-small--letter-spacing: 0.4px;
+  --text-body-small--font-weight: 400;
+
+  --text-label-large: 0.875rem;
+  --text-label-large--line-height: 1.25rem;
+  --text-label-large--letter-spacing: 0.1px;
+  --text-label-large--font-weight: 500;
+
+  --text-label-medium: 0.75rem;
+  --text-label-medium--line-height: 1rem;
+  --text-label-medium--letter-spacing: 0.5px;
+  --text-label-medium--font-weight: 500;
+
+  --text-label-small: 0.6875rem;
+  --text-label-small--line-height: 1rem;
+  --text-label-small--letter-spacing: 0.5px;
+  --text-label-small--font-weight: 500;
+}
