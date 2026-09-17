@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { fetchProgress } from '@/entities/reading-progress/api/progressApi'
 import Button from '@/shared/ui/Button'
 import Modal from '@/shared/ui/Modal'
@@ -21,6 +22,7 @@ const MIN_DAYS_SINCE_VISIT = 1
 // progress_percentage, updated_at} — there's no summary-text endpoint yet,
 // so this shows the real chapter/progress instead of a fabricated recap.
 function ResumeSummaryModal({ novelId, episodeId, onResume, onRestart }: ResumeSummaryModalProps) {
+  const [entry] = useState(() => ({ episodeId, visitedAt: Date.now() }))
   const dismissed = useAssistPanelStore((s) => s.resumeSummaryDismissed)
   const dismissResumeSummary = useAssistPanelStore((s) => s.dismissResumeSummary)
 
@@ -34,8 +36,10 @@ function ResumeSummaryModal({ novelId, episodeId, onResume, onRestart }: ResumeS
   // treat that as "no reading history yet" rather than "infinitely overdue".
   if (!data || dismissed || !data.updated_at) return null
 
-  const daysSinceLastVisit = (Date.now() - new Date(data.updated_at).getTime()) / (1000 * 60 * 60 * 24)
-  const visitedOtherEpisodeSince = data.current_chapter_number !== Number(episodeId)
+  const daysSinceLastVisit = (entry.visitedAt - new Date(data.updated_at).getTime()) / (1000 * 60 * 60 * 24)
+  // Only compare the chapter used to enter the reader. Ordinary next/previous
+  // navigation is part of the same visit and must not reopen this overlay.
+  const visitedOtherEpisodeSince = data.current_chapter_number !== Number(entry.episodeId)
   const shouldShow = daysSinceLastVisit >= MIN_DAYS_SINCE_VISIT || visitedOtherEpisodeSince
 
   if (!shouldShow) return null

@@ -25,27 +25,30 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
   const renderBlock = (block: ContentBlock) => {
     const blockEnd = block.start + block.text.length
     const marks = entities
-      .filter((e) => e.start_offset >= block.start && e.end_offset <= blockEnd)
+      .filter((e) => e.start_offset < blockEnd && e.end_offset > block.start)
       .sort((a, b) => a.start_offset - b.start_offset)
 
     const parts: ReactNode[] = []
     let cursor = block.start
 
     marks.forEach((mark, i) => {
-      if (mark.start_offset > cursor) {
-        parts.push(<span key={`t-${i}`}>{block.text.slice(cursor - block.start, mark.start_offset - block.start)}</span>)
+      const start = Math.max(cursor, mark.start_offset)
+      const end = Math.min(blockEnd, mark.end_offset)
+      if (end <= start) return
+      if (start > cursor) {
+        parts.push(<span key={`t-${i}`}>{block.text.slice(cursor - block.start, start - block.start)}</span>)
       }
-      const word = block.text.slice(mark.start_offset - block.start, mark.end_offset - block.start)
+      const visibleText = block.text.slice(start - block.start, end - block.start)
       parts.push(
         <span
           key={`e-${i}`}
-          {...getHandlers(word, block.text)}
+          {...getHandlers(mark.word, block.contextSentence ?? block.text)}
           className="cursor-pointer rounded-sm transition-colors hover:bg-primary-100"
         >
-          {word}
+          {visibleText}
         </span>,
       )
-      cursor = Math.max(cursor, mark.end_offset)
+      cursor = end
     })
 
     if (cursor < blockEnd) {
@@ -57,11 +60,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
 
   return (
     <div
-      // Plain block flow on purpose: PaginatedReader lays this out inside a
-      // CSS multi-column container, and flex/grid formatting contexts don't
-      // fragment across columns — they'd render as one tall, unbroken box
-      // and bleed past the page viewport instead of splitting into pages.
-      className={`space-y-3 ${prefs.nightMode ? 'text-neutral-200' : 'text-neutral-800'}`}
+      className={`space-y-3 [overflow-wrap:anywhere] ${prefs.nightMode ? 'text-neutral-200' : 'text-neutral-800'}`}
       style={{
         fontSize: `${prefs.fontSizeRem}rem`,
         lineHeight: prefs.lineHeight,
@@ -73,7 +72,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
         block.type === 'heading' ? (
           <h2
             key={i}
-            className={`mt-4 text-title-large font-semibold ${prefs.nightMode ? 'text-neutral-50' : 'text-neutral-900'}`}
+            className={`text-title-large font-semibold ${prefs.nightMode ? 'text-neutral-50' : 'text-neutral-900'}`}
           >
             {block.text}
           </h2>

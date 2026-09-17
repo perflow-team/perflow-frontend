@@ -8,7 +8,7 @@ export function throttle<Args extends unknown[]>(fn: (...args: Args) => void, wa
     fn(...args)
   }
 
-  return (...args: Args) => {
+  const throttled = (...args: Args) => {
     const remaining = wait - (Date.now() - lastCall)
     if (remaining <= 0) {
       if (timeout) {
@@ -26,4 +26,12 @@ export function throttle<Args extends unknown[]>(fn: (...args: Args) => void, wa
       }
     }
   }
+
+  throttled.cancel = () => {
+    if (timeout) clearTimeout(timeout)
+    timeout = null
+    pendingArgs = null
+  }
+
+  return throttled
 }

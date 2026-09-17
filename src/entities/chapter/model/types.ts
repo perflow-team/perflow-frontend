@@ -3,6 +3,8 @@ export interface ContentBlock {
   text: string
   /** Absolute character offset of `text` within the chapter's raw content string. */
   start: number
+  /** Original paragraph used for lookups when pagination splits the text. */
+  contextSentence?: string
 }
 
 export interface EntityMark {

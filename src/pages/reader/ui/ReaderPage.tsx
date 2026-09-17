@@ -125,6 +125,7 @@ function ReaderPage() {
       <CharacterCard novelId={novelId} episodeId={episodeId} />
 
       <ResumeSummaryModal
+        key={novelId}
         novelId={novelId}
         episodeId={episodeId}
         onResume={(progress) => readerRef.current?.jumpToProgress(progress)}

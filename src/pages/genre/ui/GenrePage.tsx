@@ -24,6 +24,7 @@ function GenrePage() {
 
       <section className="mx-auto max-w-[1168px] px-4 py-10 md:px-10 md:py-16">
         <h1 className="text-headline-small text-neutral-900">장르</h1>
+        <p className="mt-2 text-body-small text-neutral-500">장르별 작품을 준비 중이에요. 아래 작품은 미리보기용 예시이며, 아직 읽을 수 없어요.</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
           {GENRES.map((genre) => (

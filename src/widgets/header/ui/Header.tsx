@@ -25,7 +25,7 @@ function Header() {
     <header
       className={`fixed inset-x-0 top-0 z-50 border-b border-neutral-200 bg-white/90 backdrop-blur transition-transform duration-300 ${hidden ? '-translate-y-full' : 'translate-y-0'}`}
     >
-      <div className="mx-auto grid h-16 max-w-[1168px] grid-cols-[1fr_auto_1fr] items-center px-4 md:px-10">
+      <div className="mx-auto grid h-16 max-w-[1168px] grid-cols-[1fr_auto] items-center px-4 md:px-10 lg:grid-cols-[1fr_auto_1fr]">
         <Link to="/" className="shrink-0 justify-self-start">
           <img src={wordmark} alt="perflow" className="h-9 w-auto md:h-12" />
         </Link>

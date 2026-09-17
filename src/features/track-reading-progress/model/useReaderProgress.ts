@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 import { updateProgress } from '@/entities/reading-progress/api/progressApi'
 import { throttle } from '@/shared/lib/throttle'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
@@ -14,24 +14,22 @@ interface UseReaderProgressParams {
 // once every 500ms, decoupling UI responsiveness from network calls.
 export function useReaderProgress({ novelId, episodeId, totalChars }: UseReaderProgressParams) {
   const progress = useReaderStore((s) => s.progress)
-  const totalCharsRef = useRef(totalChars)
-  totalCharsRef.current = totalChars
-
-  const throttledSave = useRef(
-    throttle((p: number) => {
+  const throttledSave = useMemo(() =>
+    throttle((p: number, chars: number) => {
       updateProgress({
         novelId,
         currentChapterNumber: Number(episodeId),
-        currentCharOffset: Math.round(p * totalCharsRef.current),
+        currentCharOffset: Math.round(p * chars),
         progress: p,
       }).catch(() => {
         // best-effort: progress will resync on the next successful save
       })
-    }, 500),
-  ).current
+    }, 500), [novelId, episodeId])
+
+  useEffect(() => () => throttledSave.cancel(), [throttledSave])
 
   useEffect(() => {
     if (totalChars <= 0) return
-    throttledSave(progress)
+    throttledSave(progress, totalChars)
   }, [progress, totalChars, throttledSave])
 }

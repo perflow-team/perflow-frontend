@@ -16,7 +16,7 @@ function SearchBar() {
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
-  const { data: novels } = useQuery({ queryKey: ['novels'], queryFn: fetchNovels, enabled: open })
+  const { data: novels, isLoading, isError, refetch } = useQuery({ queryKey: ['novels'], queryFn: fetchNovels, enabled: open })
   const results = filterNovels(novels ?? [], query).slice(0, 6)
 
   useEffect(() => {
@@ -52,7 +52,7 @@ function SearchBar() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 w-[320px] rounded-lg border border-neutral-200 bg-white p-3 shadow-lg">
+        <div className="fixed inset-x-4 top-16 rounded-lg border border-neutral-200 bg-white p-3 shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-11 sm:w-[320px]">
           <div className="flex items-center gap-2 rounded-md bg-neutral-100 px-3 py-2">
             <Search size={15} className="shrink-0 text-neutral-400" />
             <input
@@ -75,7 +75,14 @@ function SearchBar() {
 
           {query.trim() && (
             <div className="mt-2">
-              {results.length === 0 ? (
+              {isLoading ? (
+                <p role="status" className="px-1 py-3 text-body-small text-neutral-400">작품을 불러오는 중이에요.</p>
+              ) : isError ? (
+                <div className="px-1 py-3 text-body-small text-neutral-500">
+                  <p>작품 목록을 가져오지 못했어요.</p>
+                  <button type="button" onClick={() => void refetch()} className="mt-2 text-primary-600">다시 시도</button>
+                </div>
+              ) : results.length === 0 ? (
                 <p className="px-1 py-3 text-body-small text-neutral-400">검색 결과가 없어요.</p>
               ) : (
                 <ul className="flex flex-col">

@@ -61,8 +61,11 @@ function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
               </Badge>
             )}
             <div className="mt-3 space-y-3">
-              {data.fields.map((field) => (
-                <div key={field.label}>
+              {data.fields.length === 0 && (
+                <p className="text-body-small text-neutral-500">현재 읽은 내용에서 확인할 수 있는 설명이 없어요.</p>
+              )}
+              {data.fields.map((field, index) => (
+                <div key={`${field.label}-${index}`}>
                   <p className="text-label-medium font-medium text-neutral-500">{field.label}</p>
                   <p className="text-body-small text-neutral-700">{field.value}</p>
                 </div>

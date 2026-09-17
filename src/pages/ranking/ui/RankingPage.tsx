@@ -22,6 +22,7 @@ function RankingPage() {
 
       <section className="mx-auto max-w-[1168px] px-4 py-10 md:px-10 md:py-16">
         <h1 className="text-headline-small text-neutral-900">랭킹</h1>
+        <p className="mt-2 text-body-small text-neutral-500">랭킹을 준비 중이에요. 아래 작품과 순위는 미리보기용 예시이며, 아직 읽을 수 없어요.</p>
 
         <div className="mt-5 flex gap-1 border-b border-neutral-200">
           {TABS.map((t) => (

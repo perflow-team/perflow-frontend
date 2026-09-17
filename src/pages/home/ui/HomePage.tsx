@@ -122,12 +122,13 @@ function HomePage() {
 
       <section className="mx-auto max-w-[1168px] px-4 py-8 md:px-10 md:py-10">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-headline-small text-neutral-900">실시간 인기</h2>
+          <h2 className="text-headline-small text-neutral-900">인기 작품 미리보기</h2>
           <Link to="/ranking" className="text-label-large text-neutral-500 hover:text-primary-600">
             전체 보기
           </Link>
         </div>
 
+        <p className="mb-4 text-body-small text-neutral-500">랭킹을 준비 중이에요. 아래 작품은 읽을 수 없는 예시예요.</p>
         <ScrollCarousel>
           {TOP_RANKED.map((novel, i) => (
             <MockNovelCard key={novel.id} novel={novel} rank={i + 1} />

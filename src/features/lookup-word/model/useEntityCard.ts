@@ -13,7 +13,7 @@ export function useEntityCard({ novelId, episodeId, word, contextSentence }: Use
   const progress = useReaderStore((s) => s.progress)
 
   return useQuery({
-    queryKey: ['entity', novelId, word, contextSentence, Math.floor(progress * 100)],
+    queryKey: ['entity', novelId, episodeId, word, contextSentence, progress],
     queryFn: () =>
       fetchEntityCard({
         novelId,
