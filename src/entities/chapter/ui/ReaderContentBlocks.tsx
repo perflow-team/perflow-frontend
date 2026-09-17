@@ -1,4 +1,5 @@
-import type { ContentBlock } from '@/entities/chapter/model/types'
+import type { ReactNode } from 'react'
+import type { ContentBlock, EntityMark } from '@/entities/chapter/model/types'
 import { useEntityTrigger } from '@/features/lookup-word/lib/useEntityTrigger'
 
 export interface ReaderPrefs {
@@ -10,33 +11,48 @@ export interface ReaderPrefs {
 
 interface ReaderContentBlocksProps {
   content: ContentBlock[]
+  entities: EntityMark[]
   prefs: ReaderPrefs
   onEntityTrigger: (word: string, contextSentence: string) => void
 }
 
-const WORD_PATTERN = /([가-힣a-zA-Z0-9]+)/
-
-function ReaderContentBlocks({ content, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
+function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
   const { getHandlers } = useEntityTrigger(onEntityTrigger)
 
-  // Spec 2.3: 인물명/고유명사 마킹 — the API doesn't send entity boundaries
-  // with the chapter text, so every word is individually look-up-able
-  // instead of matching one fixed keyword.
-  const renderText = (text: string) => {
-    const parts = text.split(WORD_PATTERN)
-    return parts.map((part, i) => {
-      if (!part) return null
-      if (!WORD_PATTERN.test(part)) return <span key={i}>{part}</span>
-      return (
+  // Spec 2.3: 인물명/고유명사 마킹 — the chapter API now sends entity spans
+  // ({word, start_offset, end_offset}) alongside the raw text, so only the
+  // words the backend actually flagged are look-up-able (not every word).
+  const renderBlock = (block: ContentBlock) => {
+    const blockEnd = block.start + block.text.length
+    const marks = entities
+      .filter((e) => e.start_offset >= block.start && e.end_offset <= blockEnd)
+      .sort((a, b) => a.start_offset - b.start_offset)
+
+    const parts: ReactNode[] = []
+    let cursor = block.start
+
+    marks.forEach((mark, i) => {
+      if (mark.start_offset > cursor) {
+        parts.push(<span key={`t-${i}`}>{block.text.slice(cursor - block.start, mark.start_offset - block.start)}</span>)
+      }
+      const word = block.text.slice(mark.start_offset - block.start, mark.end_offset - block.start)
+      parts.push(
         <span
-          key={i}
-          {...getHandlers(part, text)}
+          key={`e-${i}`}
+          {...getHandlers(word, block.text)}
           className="cursor-pointer rounded-sm transition-colors hover:bg-primary-100"
         >
-          {part}
-        </span>
+          {word}
+        </span>,
       )
+      cursor = Math.max(cursor, mark.end_offset)
     })
+
+    if (cursor < blockEnd) {
+      parts.push(<span key="t-last">{block.text.slice(cursor - block.start)}</span>)
+    }
+
+    return parts
   }
 
   return (
@@ -59,7 +75,7 @@ function ReaderContentBlocks({ content, prefs, onEntityTrigger }: ReaderContentB
           </h2>
         ) : (
           <p key={i} data-paragraph-index={i}>
-            {renderText(block.text)}
+            {renderBlock(block)}
           </p>
         ),
       )}

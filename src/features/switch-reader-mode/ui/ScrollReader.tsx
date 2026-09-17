@@ -1,17 +1,18 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
-import type { ContentBlock } from '@/entities/chapter/model/types'
+import type { ContentBlock, EntityMark } from '@/entities/chapter/model/types'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
 import type { ReaderHandle } from '@/features/switch-reader-mode/lib/ReaderHandle'
 import ReaderContentBlocks, { type ReaderPrefs } from '@/entities/chapter/ui/ReaderContentBlocks'
 
 interface ScrollReaderProps {
   content: ContentBlock[]
+  entities: EntityMark[]
   prefs: ReaderPrefs
   onEntityTrigger: (word: string, contextSentence: string) => void
 }
 
 // Spec 2.2: progress = scrollTop / (scrollHeight - clientHeight)
-const ScrollReader = forwardRef<ReaderHandle, ScrollReaderProps>(({ content, prefs, onEntityTrigger }, ref) => {
+const ScrollReader = forwardRef<ReaderHandle, ScrollReaderProps>(({ content, entities, prefs, onEntityTrigger }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const setProgress = useReaderStore((s) => s.setProgress)
 
@@ -44,7 +45,7 @@ const ScrollReader = forwardRef<ReaderHandle, ScrollReaderProps>(({ content, pre
   return (
     <div ref={containerRef} className="h-full overflow-y-auto">
       <div className="mx-auto w-full max-w-2xl px-6 py-10 lg:px-16">
-        <ReaderContentBlocks content={content} prefs={prefs} onEntityTrigger={onEntityTrigger} />
+        <ReaderContentBlocks content={content} entities={entities} prefs={prefs} onEntityTrigger={onEntityTrigger} />
       </div>
     </div>
   )

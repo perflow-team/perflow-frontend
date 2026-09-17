@@ -1,5 +1,8 @@
 import { useRef } from 'react'
 
+// Only backend-marked entities are hoverable now (see entities/chapter),
+// so 300ms matches the spec without the false-positive risk that came from
+// making every single word interactive.
 const HOVER_DELAY_MS = 300
 const LONG_PRESS_DELAY_MS = 500
 

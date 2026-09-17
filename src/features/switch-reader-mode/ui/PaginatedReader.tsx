@@ -1,11 +1,12 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react'
-import type { ContentBlock } from '@/entities/chapter/model/types'
+import type { ContentBlock, EntityMark } from '@/entities/chapter/model/types'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
 import type { ReaderHandle } from '@/features/switch-reader-mode/lib/ReaderHandle'
 import ReaderContentBlocks, { type ReaderPrefs } from '@/entities/chapter/ui/ReaderContentBlocks'
 
 interface PaginatedReaderProps {
   content: ContentBlock[]
+  entities: EntityMark[]
   prefs: ReaderPrefs
   onEntityTrigger: (word: string, contextSentence: string) => void
 }
@@ -18,7 +19,7 @@ interface PaginatedReaderProps {
 // pixel width in both modes — only overflow-hidden is added here, since
 // this element also acts as the page "viewport" for the column transform.
 const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
-  ({ content, prefs, onEntityTrigger }, ref) => {
+  ({ content, entities, prefs, onEntityTrigger }, ref) => {
     const outerRef = useRef<HTMLDivElement>(null)
     const innerRef = useRef<HTMLDivElement>(null)
     const [pageWidth, setPageWidth] = useState(0)
@@ -76,7 +77,7 @@ const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
             transform: `translateX(-${(currentPage - 1) * pageWidth}px)`,
           }}
         >
-          <ReaderContentBlocks content={content} prefs={prefs} onEntityTrigger={onEntityTrigger} />
+          <ReaderContentBlocks content={content} entities={entities} prefs={prefs} onEntityTrigger={onEntityTrigger} />
         </div>
       </div>
     )

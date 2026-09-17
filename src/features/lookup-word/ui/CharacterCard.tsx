@@ -13,6 +13,10 @@ interface CharacterCardProps {
 // Spec 3.1: modal overlay, identical on PC and mobile. Local UI state only
 // (open/closed + target word/context) lives in useAssistPanelStore; the
 // actual explanation is server state fetched through useEntityCard.
+//
+// Response shape: { title, tag, fields: [{label, value}], is_spoiler_filtered }.
+// tag is empty for plain words/phrases (not a character/place/event), so the
+// type badge only renders when there's something to label.
 function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
   const word = useAssistPanelStore((s) => s.characterCardEntityId)
   const contextSentence = useAssistPanelStore((s) => s.characterCardContext)
@@ -26,8 +30,8 @@ function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
       <div className="p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-title-medium font-semibold text-neutral-900">{word}</span>
-            <Badge>인물</Badge>
+            <span className="text-title-medium font-semibold text-neutral-900">{data?.title ?? word}</span>
+            {data?.tag && <Badge>{data.tag}</Badge>}
           </div>
 
           <button
@@ -56,7 +60,14 @@ function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
                 현재 진행도까지만 표시
               </Badge>
             )}
-            <p className="mt-3 text-body-small text-neutral-700">{data.explanation}</p>
+            <div className="mt-3 space-y-3">
+              {data.fields.map((field) => (
+                <div key={field.label}>
+                  <p className="text-label-medium font-medium text-neutral-500">{field.label}</p>
+                  <p className="text-body-small text-neutral-700">{field.value}</p>
+                </div>
+              ))}
+            </div>
           </>
         )}
       </div>

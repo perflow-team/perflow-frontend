@@ -1,4 +1,5 @@
 import { api } from '@/shared/api/base'
+import type { EntityMark } from '@/entities/chapter/model/types'
 
 export interface ChapterSummary {
   id: number
@@ -17,6 +18,7 @@ export interface ChapterContent {
   chapter_number: number
   title: string | null
   content: string
+  entities: EntityMark[]
 }
 
 export async function fetchChapterContent(novelId: string, chapterNumber: number): Promise<ChapterContent> {

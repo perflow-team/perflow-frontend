@@ -45,6 +45,7 @@ function ReaderPage() {
   })
 
   const content = useMemo(() => (chapter ? parseChapterContent(chapter.content) : []), [chapter])
+  const entities = useMemo(() => chapter?.entities ?? [], [chapter])
   const totalChars = chapter?.content.length ?? 0
 
   useReaderProgress({ novelId, episodeId, totalChars })
@@ -103,9 +104,21 @@ function ReaderPage() {
         )}
         {chapter &&
           (mode === 'scroll' ? (
-            <ScrollReader ref={readerRef} content={content} prefs={prefs} onEntityTrigger={openCharacterCard} />
+            <ScrollReader
+              ref={readerRef}
+              content={content}
+              entities={entities}
+              prefs={prefs}
+              onEntityTrigger={openCharacterCard}
+            />
           ) : (
-            <PaginatedReader ref={readerRef} content={content} prefs={prefs} onEntityTrigger={openCharacterCard} />
+            <PaginatedReader
+              ref={readerRef}
+              content={content}
+              entities={entities}
+              prefs={prefs}
+              onEntityTrigger={openCharacterCard}
+            />
           ))}
       </ReaderShell>
 
