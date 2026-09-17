@@ -2,14 +2,48 @@
 @import "pretendard/dist/web/variable/pretendardvariable.css";
 
 html,
-.overflow-y-auto {
+.overflow-y-auto,
+.scrollbar-hide {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* legacy Edge */
 }
 
 html::-webkit-scrollbar,
-.overflow-y-auto::-webkit-scrollbar {
+.overflow-y-auto::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-item {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+@keyframes wave-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.wave-layer-back {
+  animation: wave-drift 34s linear infinite;
+}
+
+.wave-layer-front {
+  animation: wave-drift 22s linear infinite reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-layer-back,
+  .wave-layer-front {
+    animation: none;
+  }
 }
 
 @theme {

@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import { Heart } from 'lucide-react'
+import { ArrowRight, BookOpen, ChevronRight, Heart, MessageCircle, Users } from 'lucide-react'
+import type { ComponentType } from 'react'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '@/widgets/header/ui/Header'
 import { addBookmark, removeBookmark } from '@/features/bookmark-novel/api/bookmarkApi'
 import { fetchChapters } from '@/entities/chapter/api/chapterApi'
 import { fetchNovel } from '@/entities/novel/api/novelApi'
+import Badge from '@/shared/ui/Badge'
 import Button from '@/shared/ui/Button'
 import Skeleton from '@/shared/ui/Skeleton'
+import SectionNotice from '@/shared/ui/SectionNotice'
 
 function NovelDetailPage() {
   const { novelId = '1' } = useParams()
@@ -54,7 +57,7 @@ function NovelDetailPage() {
 
       <section className="border-b border-neutral-200 bg-neutral-50">
         <div className="mx-auto flex max-w-[1168px] flex-col gap-6 px-4 py-8 sm:flex-row sm:gap-10 md:px-10 md:py-12">
-          <div className="mx-auto h-[300px] w-[230px] shrink-0 overflow-hidden rounded-lg bg-neutral-200 sm:mx-0">
+          <div className="mx-auto h-[300px] w-[230px] shrink-0 overflow-hidden rounded-lg bg-neutral-200 shadow-lg ring-1 ring-neutral-900/5 sm:mx-0">
             {novel?.cover_image_url && (
               <img src={novel.cover_image_url} alt="" className="h-full w-full object-cover" />
             )}
@@ -65,7 +68,6 @@ function NovelDetailPage() {
               <div className="flex flex-col items-center gap-3 sm:items-start">
                 <Skeleton className="h-8 w-2/3" />
                 <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-3 w-24" />
                 <Skeleton className="mt-2 h-4 w-full max-w-2xl" />
                 <Skeleton className="h-4 w-5/6 max-w-2xl" />
               </div>
@@ -76,17 +78,27 @@ function NovelDetailPage() {
             {novel && (
               <>
                 <h1 className="text-headline-large text-neutral-900">{novel.title}</h1>
-                <p className="text-title-small text-neutral-500">{novel.author} 지음</p>
-                <p className="text-label-medium text-neutral-500">총 {novel.total_chapters}화 연재</p>
+                <p className="text-title-small text-neutral-500">
+                  {novel.author} 지음 · 총 {novel.total_chapters}화 연재
+                </p>
 
-                <p className="mt-2 max-w-2xl text-body-medium text-neutral-700">
+                <p className="mt-1 max-w-2xl text-body-medium text-neutral-700">
                   {novel.description ?? '아직 작품 소개가 등록되지 않았어요.'}
                 </p>
+
+                <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
+                  <FeatureChip icon={MessageCircle}>스포일러 없는 AI 챗봇</FeatureChip>
+                  <FeatureChip icon={Users}>인물 관계도</FeatureChip>
+                  <FeatureChip icon={BookOpen}>모르는 단어 설명</FeatureChip>
+                </div>
 
                 <div className="mt-4 flex flex-wrap justify-center gap-3 sm:justify-start">
                   {firstChapter && (
                     <Link to={`/novel/${novelId}/read/${firstChapter.chapter_number}`}>
-                      <Button>{firstChapter.chapter_number}화 보기</Button>
+                      <Button>
+                        {firstChapter.chapter_number}화 보기
+                        <ArrowRight size={16} />
+                      </Button>
                     </Link>
                   )}
                   <Button variant="outline" onClick={handleBookmarkClick} disabled={bookmarkPending}>
@@ -114,7 +126,7 @@ function NovelDetailPage() {
           </div>
         )}
         {!chaptersLoading && chapters?.length === 0 && (
-          <p className="text-body-small text-neutral-400">등록된 회차가 없어요.</p>
+          <SectionNotice icon={BookOpen}>등록된 회차가 없어요.</SectionNotice>
         )}
 
         {chapters && chapters.length > 0 && (
@@ -123,20 +135,33 @@ function NovelDetailPage() {
               <Link
                 key={chapter.id}
                 to={`/novel/${novelId}/read/${chapter.chapter_number}`}
-                className="flex items-center justify-between px-5 py-4 hover:bg-neutral-50"
+                className="group flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-neutral-50"
               >
-                <span className="text-body-medium text-neutral-900">
+                <span className="line-clamp-1 text-body-medium text-neutral-900">
                   {chapter.title ?? `${chapter.chapter_number}화`}
                 </span>
-                {!chapter.is_free && (
-                  <span className="rounded bg-primary-100 px-2 py-0.5 text-label-small text-primary-700">유료</span>
-                )}
+                <span className="flex shrink-0 items-center gap-2">
+                  {!chapter.is_free && <Badge tone="primary">유료</Badge>}
+                  <ChevronRight
+                    size={14}
+                    className="text-neutral-300 transition-transform group-hover:translate-x-0.5"
+                  />
+                </span>
               </Link>
             ))}
           </div>
         )}
       </section>
     </div>
+  )
+}
+
+function FeatureChip({ icon: Icon, children }: { icon: ComponentType<{ size?: number }>; children: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-label-medium font-medium text-primary-700">
+      <Icon size={14} />
+      {children}
+    </span>
   )
 }
 

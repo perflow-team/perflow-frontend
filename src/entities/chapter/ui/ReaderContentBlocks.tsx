@@ -57,7 +57,11 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
 
   return (
     <div
-      className={`flex flex-col gap-3 ${prefs.nightMode ? 'text-neutral-200' : 'text-neutral-800'}`}
+      // Plain block flow on purpose: PaginatedReader lays this out inside a
+      // CSS multi-column container, and flex/grid formatting contexts don't
+      // fragment across columns — they'd render as one tall, unbroken box
+      // and bleed past the page viewport instead of splitting into pages.
+      className={`space-y-3 ${prefs.nightMode ? 'text-neutral-200' : 'text-neutral-800'}`}
       style={{
         fontSize: `${prefs.fontSizeRem}rem`,
         lineHeight: prefs.lineHeight,
