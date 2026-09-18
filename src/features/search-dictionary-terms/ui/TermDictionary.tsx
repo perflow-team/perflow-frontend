@@ -1,5 +1,6 @@
 import { BookOpen, Search } from 'lucide-react'
 import { useState } from 'react'
+import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
 import { useDictionaryTerms } from '@/features/search-dictionary-terms/model/useDictionaryTerms'
 import { useAssistPanelStore } from '@/entities/assist-panel/model/useAssistPanelStore'
 import Skeleton from '@/shared/ui/Skeleton'
@@ -16,13 +17,11 @@ const TYPE_LABELS: Record<string, string> = {
   WORD: '단어',
 }
 
-// GET /dictionary/terms only ever returns entries unlocked as of the
-// reader's current chapter — there's no "locked, dimmed" state to render,
-// the backend simply omits anything not yet safe to show. Tapping an entry
-// reuses the same on-demand explanation modal as a long-press in the text.
+// Both list and card queries use the chapter-scoped reading cutoff.
 function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
   const [query, setQuery] = useState('')
-  const { data: terms, isLoading } = useDictionaryTerms({ novelId, episodeId, query })
+  const currentCharOffset = useReaderStore((s) => s.cutoff.scope === `${novelId}:${episodeId}` ? s.cutoff.offset : 0)
+  const { data: terms, isLoading } = useDictionaryTerms({ novelId, episodeId, query, currentCharOffset })
   const openCharacterCard = useAssistPanelStore((s) => s.openCharacterCard)
 
   return (
@@ -60,7 +59,7 @@ function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
             <li key={entry.id}>
               <button
                 type="button"
-                onClick={() => openCharacterCard(entry.name, entry.name, `${novelId}:${episodeId}`)}
+                onClick={() => openCharacterCard(entry.name, entry.name, `${novelId}:${episodeId}`, currentCharOffset)}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left hover:bg-neutral-100"
               >
                 <BookOpen size={14} className="shrink-0 text-primary-600" />

@@ -12,4 +12,6 @@ export interface EntityMark {
   type: string
   start_offset: number
   end_offset: number
+  /** Safe cutoff: end of the sentence containing this occurrence (UTF-16). */
+  lookup_offset?: number
 }

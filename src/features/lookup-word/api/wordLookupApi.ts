@@ -10,22 +10,22 @@ interface FetchEntityCardParams {
   contextSentence: string
   currentChapterNumber: number
   progress: number // internal 0~1 scale
+  currentCharOffset: number
 }
 
-// POST /api/ai/novels/{novelId}/dictionary — a single on-demand lookup for
-// the exact word long-pressed/hovered, using the sentence it appeared in as
-// context. There's no "list all entities" endpoint; each call is scoped to
-// one word. entity_type is still sent for backward-compat but the backend
-// now classifies the word itself and ignores this field.
+// Read a precomputed card at the clicked sentence's UTF-16 cutoff.
+// The endpoint keeps its old path but no longer generates explanations on demand.
 export async function fetchEntityCard({
   novelId,
   word,
   contextSentence,
   currentChapterNumber,
   progress,
+  currentCharOffset,
 }: FetchEntityCardParams): Promise<EntityCardData> {
   const { data } = await api.post<unknown>(`/api/ai/novels/${novelId}/dictionary`, {
     word,
+    current_char_offset: currentCharOffset,
     entity_type: 'CHARACTER',
     context_sentence: contextSentence,
     current_chapter_number: currentChapterNumber,

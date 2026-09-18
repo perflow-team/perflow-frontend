@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 
 interface ReaderState {
+  cutoff: { scope: string; offset: number }
+  setCutoff: (scope: string, offset: number) => void
   mode: 'scroll' | 'paginated'
   progress: number // 0 ~ 1, 두 모드 공통
   currentPage: number // paginated 모드에서만 사용
@@ -12,6 +14,8 @@ interface ReaderState {
 }
 
 export const useReaderStore = create<ReaderState>((set) => ({
+  cutoff: { scope: '', offset: 0 },
+  setCutoff: (scope, offset) => set({ cutoff: { scope, offset: Math.max(0, offset) } }),
   mode: 'scroll',
   progress: 0,
   currentPage: 1,

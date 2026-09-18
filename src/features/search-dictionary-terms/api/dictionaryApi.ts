@@ -9,6 +9,7 @@ export interface TermEntry {
 interface FetchDictionaryTermsParams {
   novelId: string
   currentChapterNumber: number
+  currentCharOffset: number
   query?: string
 }
 
@@ -18,10 +19,11 @@ interface FetchDictionaryTermsParams {
 export async function fetchDictionaryTerms({
   novelId,
   currentChapterNumber,
+  currentCharOffset,
   query,
 }: FetchDictionaryTermsParams): Promise<TermEntry[]> {
   const { data } = await api.get<TermEntry[]>(`/api/novels/${novelId}/dictionary/terms`, {
-    params: { current_chapter_number: currentChapterNumber, query: query || undefined },
+    params: { current_chapter_number: currentChapterNumber, current_char_offset: currentCharOffset, query: query || undefined },
   })
   return data
 }

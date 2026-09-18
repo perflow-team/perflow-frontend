@@ -6,16 +6,17 @@ import { paginateContent } from '@/features/switch-reader-mode/lib/paginateConte
 import ReaderContentBlocks, { type ReaderPrefs } from '@/entities/chapter/ui/ReaderContentBlocks'
 
 interface PaginatedReaderProps {
+  scope: string
   content: ContentBlock[]
   entities: EntityMark[]
   prefs: ReaderPrefs
-  onEntityTrigger: (word: string, contextSentence: string) => void
+  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
 }
 
 // Render only the current page. Measure oversized paragraphs in the same font
 // and width, splitting them into fragments with their original source offsets.
 const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
-  ({ content, entities, prefs, onEntityTrigger }, ref) => {
+  ({ content, entities, prefs, onEntityTrigger, scope }, ref) => {
     const outerRef = useRef<HTMLDivElement>(null)
     const measureRef = useRef<HTMLDivElement>(null)
     const layoutRef = useRef<{ content: ContentBlock[]; pages: ContentBlock[][] } | null>(null)
@@ -24,6 +25,7 @@ const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
     const setCurrentPage = useReaderStore((s) => s.setCurrentPage)
     const setTotalPages = useReaderStore((s) => s.setTotalPages)
     const setProgress = useReaderStore((s) => s.setProgress)
+    const setCutoff = useReaderStore((s) => s.setCutoff)
     const lastBlock = content.at(-1)
     const totalChars = lastBlock ? lastBlock.start + lastBlock.text.length : 0
 
@@ -81,8 +83,9 @@ const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
 
     useEffect(() => {
       const last = pages[currentPage - 1]?.at(-1)
+      setCutoff(scope, last ? last.start + last.text.length : 0)
       if (last && totalChars) setProgress((last.start + last.text.length) / totalChars)
-    }, [currentPage, pages, totalChars, setProgress])
+    }, [currentPage, pages, totalChars, setProgress, setCutoff, scope])
 
     useImperativeHandle(ref, () => ({
       pageForward: () => {

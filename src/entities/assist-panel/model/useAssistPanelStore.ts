@@ -8,8 +8,9 @@ interface AssistPanelState {
   // alongside the word itself (characterCardEntityId doubles as the word here).
   characterCardContext: string | null
   characterCardScope: string | null
+  characterCardOffset: number
   resumeSummaryDismissed: boolean
-  openCharacterCard: (word: string, contextSentence: string, scope: string) => void
+  openCharacterCard: (word: string, contextSentence: string, scope: string, offset?: number) => void
   closeCharacterCard: () => void
   setActivePanel: (panel: AssistPanelState['activePanel']) => void
   dismissResumeSummary: () => void
@@ -25,10 +26,11 @@ export const useAssistPanelStore = create<AssistPanelState>()(
       characterCardEntityId: null,
       characterCardContext: null,
       characterCardScope: null,
+      characterCardOffset: 0,
       resumeSummaryDismissed: false,
-      openCharacterCard: (word, contextSentence, scope) =>
-        set({ characterCardEntityId: word, characterCardContext: contextSentence, characterCardScope: scope }),
-      closeCharacterCard: () => set({ characterCardEntityId: null, characterCardContext: null, characterCardScope: null }),
+      openCharacterCard: (word, contextSentence, scope, offset = 0) =>
+        set({ characterCardEntityId: word, characterCardContext: contextSentence, characterCardScope: scope, characterCardOffset: offset }),
+      closeCharacterCard: () => set({ characterCardEntityId: null, characterCardContext: null, characterCardScope: null, characterCardOffset: 0 }),
       setActivePanel: (panel) => set({ activePanel: panel }),
       dismissResumeSummary: () => set({ resumeSummaryDismissed: true }),
     }),

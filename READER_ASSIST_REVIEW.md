@@ -41,3 +41,13 @@ node tests/browser-review.mjs
 ```
 
 공유 런타임은 `PLAYWRIGHT_MODULE`, `CHROME_PATH`, `BASE_URL` 환경변수로 지정할 수 있다.
+
+## 상세 설명 사전 생성 전환
+
+- 클릭 요청은 `lookup_offset`을 `current_char_offset`으로 전달해 DB 카드만 조회한다.
+- 읽기 위치를 작품/회차에 귀속시키고, 카드와 사전 검색 캐시 키에도 해당 위치를 포함한다.
+- 스크롤 화면에서 끝까지 보이는 문단과 넘김 화면의 현재 페이지 끝을 사전 목록의 공개 범위로 사용한다.
+- 준비된 카드가 있는 대상만 표시하며, 조회로 생성/재시도를 시작하지 않는다.
+- `tests/browser-precomputed-dictionary.mjs`는 실제 로컬 API/DB로 클릭 설명과 스포일러 차단을 검사한다.
+  진도 저장 API만 가로채 실제 사용자 기록을 보존한다.
+- 실제 DB 생성/근거 검증 기록은 백엔드 `PRECOMPUTED_DICTIONARY_REVIEW.md` 참조.

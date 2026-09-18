@@ -6,7 +6,7 @@ const MOVE_TOLERANCE_PX = 10
 
 // Hover is visual only. Click/keyboard opens a card; touch and pen also
 // support a long press, with scroll/cancel/unmount cancelling the timer.
-export function useEntityTrigger(onTrigger: (word: string, contextSentence: string) => void, contentKey: unknown) {
+export function useEntityTrigger(onTrigger: (word: string, contextSentence: string, lookupOffset: number) => void, contentKey: unknown) {
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const press = useRef<{ id: number; x: number; y: number } | null>(null)
   const suppressClickUntil = useRef(0)
@@ -41,12 +41,12 @@ export function useEntityTrigger(onTrigger: (word: string, contextSentence: stri
     }
   }, [contentKey])
 
-  const getHandlers = (word: string, contextSentence: string) => ({
+  const getHandlers = (word: string, contextSentence: string, lookupOffset = 0) => ({
     onClick: () => {
-      if (Date.now() >= suppressClickUntil.current) onTrigger(word, contextSentence)
+      if (Date.now() >= suppressClickUntil.current) onTrigger(word, contextSentence, lookupOffset)
     },
     onKeyDown: (event: KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onTrigger(word, contextSentence) }
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onTrigger(word, contextSentence, lookupOffset) }
     },
     onPointerDown: (event: PointerEvent) => {
       if (event.pointerType === 'mouse' || !event.isPrimary) return
@@ -55,7 +55,7 @@ export function useEntityTrigger(onTrigger: (word: string, contextSentence: stri
       pressTimer.current = setTimeout(() => {
         cancel()
         suppressClickUntil.current = Date.now() + 1000
-        onTrigger(word, contextSentence)
+        onTrigger(word, contextSentence, lookupOffset)
       }, LONG_PRESS_DELAY_MS)
     },
     onPointerMove: (event: PointerEvent) => {

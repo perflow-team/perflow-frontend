@@ -4,15 +4,15 @@ import type { EntityMark } from '@/entities/chapter/model/types'
 import { useEffect } from 'react'
 
 interface LookupTargets {
-  status: 'preparing' | 'completed' | 'failed'
+  status: 'preparing' | 'completed' | 'failed' | 'not_prepared'
   targets: EntityMark[]
 }
 
 export function useLookupTargets(novelId: string, episodeId: string, enabled: boolean) {
   const client = useQueryClient()
   const queryKey = ['lookup-targets', novelId, episodeId]
-  const fetch = async (retry = false) => {
-    const { data } = await api.get<LookupTargets>(`/api/novels/${novelId}/chapters/${episodeId}/lookup-targets`, { params: { retry } })
+  const fetch = async () => {
+    const { data } = await api.get<LookupTargets>(`/api/novels/${novelId}/chapters/${episodeId}/lookup-targets`)
     return data
   }
   const query = useQuery({
@@ -22,9 +22,5 @@ export function useLookupTargets(novelId: string, episodeId: string, enabled: bo
   useEffect(() => {
     if (query.data?.status === 'completed') void client.invalidateQueries({ queryKey: ['dictionary-terms', novelId, episodeId] })
   }, [client, query.data?.status, novelId, episodeId])
-  const retry = async () => {
-    try { client.setQueryData(queryKey, await fetch(true)) }
-    catch { await query.refetch() }
-  }
-  return { ...query, retry }
+  return query
 }

@@ -25,7 +25,12 @@ async function setup(viewport, failCatalog = false) {
       ? route.fulfill({ status: 503, json: { detail: 'Test failure' }, headers: { 'Access-Control-Allow-Origin': '*' } })
       : json(novels)
     if (url.pathname.endsWith('/chapters')) return json([1, 2].map(number => ({ id: number, chapter_number: number, title: `${number}화 검증`, is_free: true })))
-    if (url.pathname.endsWith('/lookup-targets')) return json({ status: 'completed', targets: [] })
+    if (url.pathname.endsWith('/lookup-targets')) {
+      const number = Number(url.pathname.split('/').at(-2))
+      const content = number === 1 ? paragraph : second
+      const targets = [...content.matchAll(/초봉/g)].map(m => ({ word: '초봉', type: 'CHARACTER', start_offset: m.index, end_offset: m.index + 2, lookup_offset: content.indexOf('.', m.index) + 1 }))
+      return json({ status: 'completed', targets })
+    }
     const match = url.pathname.match(/\/chapters\/(\d+)$/)
     if (match) {
       const number = Number(match[1])

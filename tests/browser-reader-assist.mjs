@@ -5,7 +5,7 @@ const browser=await chromium.launch({executablePath:process.env.CHROME_PATH,head
 const errors=[]
 const content='초봉은 군산에서 갑신정변에 관한 생경한 이야기를 읽었다. 오늘은 맑다.\n'+('조용한 오후에 책장을 넘겼다.\n'.repeat(80))
 const terms=[['초봉','CHARACTER','인물'],['군산','PLACE','장소'],['갑신정변','EVENT','사건'],['생경','WORD','']]
-const targets=terms.map(([word,type])=>({word,type,start_offset:content.indexOf(word),end_offset:content.indexOf(word)+word.length}))
+const targets=terms.map(([word,type])=>({word,type,start_offset:content.indexOf(word),end_offset:content.indexOf(word)+word.length,lookup_offset:content.indexOf(".")+1}))
 const graph={nodes:[{id:1,name:'초봉'},{id:2,name:'정주사'},{id:3,name:'형보'},{id:4,name:'승재'},{id:5,name:'계봉'},{id:6,name:'미확인 인물'}],links:[
  {source:2,target:1,relation_type:'부녀',description:'정주사는 초봉의 아버지다.'},
  {source:1,target:5,relation_type:'자매',description:'초봉과 계봉은 자매다.'},
@@ -65,6 +65,7 @@ try{
   await page.locator(`[data-lookup-word="${term}"]`).first().click()
   await page.getByRole('dialog').getByText(`${term}의 자세한 설명입니다.`,{exact:true}).waitFor()
   assert.equal(lookups.at(-1).word,term)
+  assert.equal(lookups.at(-1).current_char_offset, content.indexOf('.')+1, 'The clicked sentence cutoff must reach the API')
   assert(lookups.at(-1).context_sentence.includes('초봉은 군산'))
   await closeCard(page)
  }

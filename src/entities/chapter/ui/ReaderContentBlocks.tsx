@@ -13,7 +13,7 @@ interface ReaderContentBlocksProps {
   content: ContentBlock[]
   entities: EntityMark[]
   prefs: ReaderPrefs
-  onEntityTrigger: (word: string, contextSentence: string) => void
+  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
 }
 
 function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
@@ -42,7 +42,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
       parts.push(
         <span
           key={`e-${i}`}
-          {...getHandlers(mark.word, block.contextSentence ?? block.text)}
+          {...getHandlers(mark.word, block.contextSentence ?? block.text, mark.lookup_offset ?? mark.end_offset)}
           role="button"
           tabIndex={0}
           aria-label={`${mark.word} 설명 보기`}
@@ -81,7 +81,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
             {block.text}
           </h2>
         ) : (
-          <p key={i} data-paragraph-index={i}>
+          <p key={i} data-paragraph-index={i} data-source-start={block.start} data-source-end={block.start + block.text.length}>
             {renderBlock(block)}
           </p>
         ),

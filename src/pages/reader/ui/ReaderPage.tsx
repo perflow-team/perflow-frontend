@@ -14,7 +14,6 @@ import { parseChapterContent } from '@/entities/chapter/lib/parseChapterContent'
 import { fetchChapterContent, fetchChapters } from '@/entities/chapter/api/chapterApi'
 import Skeleton from '@/shared/ui/Skeleton'
 import { useLookupTargets } from '@/features/lookup-word/model/useLookupTargets'
-import type { EntityMark } from '@/entities/chapter/model/types'
 
 const ZOOM_STEPS = [0.85, 1, 1.15, 1.3, 1.45, 1.6]
 const LINE_SPACINGS = [1.8, 2.2, 2.6]
@@ -26,7 +25,7 @@ function ReaderPage() {
 
   const mode = useReaderStore((s) => s.mode)
   const openCharacterCard = useAssistPanelStore((s) => s.openCharacterCard)
-  const openLookup = useCallback((word: string, context: string) => openCharacterCard(word, context, `${novelId}:${episodeId}`), [openCharacterCard, novelId, episodeId])
+  const openLookup = useCallback((word: string, context: string, offset: number) => openCharacterCard(word, context, `${novelId}:${episodeId}`, offset), [openCharacterCard, novelId, episodeId])
 
   const [zoomIndex, setZoomIndex] = useState(1)
   const [lineSpacingIndex, setLineSpacingIndex] = useState(0)
@@ -49,13 +48,7 @@ function ReaderPage() {
 
   const content = useMemo(() => (chapter ? parseChapterContent(chapter.content) : []), [chapter])
   const lookup = useLookupTargets(novelId, episodeId, !!chapter)
-  const entities = useMemo(() => {
-    const unique = new Map<string, EntityMark>()
-    for (const mark of [...(chapter?.entities ?? []), ...(lookup.data?.targets ?? [])]) {
-      unique.set(`${mark.start_offset}:${mark.end_offset}`, mark)
-    }
-    return [...unique.values()]
-  }, [chapter, lookup.data])
+  const entities = lookup.data?.targets ?? []
   const totalChars = chapter?.content.length ?? 0
 
   useReaderProgress({ novelId, episodeId, totalChars })
@@ -85,7 +78,6 @@ function ReaderPage() {
         episodeId={episodeId}
         title={title}
         lookupStatus={lookup.isError || lookup.data?.status === 'failed' ? 'failed' : lookup.data?.status ?? 'preparing'}
-        onRetryLookup={() => void lookup.retry()}
         nightMode={nightMode}
         fontFamily={fontFamily}
         onZoomIn={() => setZoomIndex((i) => Math.min(ZOOM_STEPS.length - 1, i + 1))}
@@ -122,6 +114,7 @@ function ReaderPage() {
               content={content}
               entities={entities}
               prefs={prefs}
+              scope={`${novelId}:${episodeId}`}
               onEntityTrigger={openLookup}
             />
           ) : (
@@ -131,6 +124,7 @@ function ReaderPage() {
               content={content}
               entities={entities}
               prefs={prefs}
+              scope={`${novelId}:${episodeId}`}
               onEntityTrigger={openLookup}
             />
           ))}

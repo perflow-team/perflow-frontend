@@ -20,8 +20,9 @@ interface CharacterCardProps {
 function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
   const word = useAssistPanelStore((s) => s.characterCardScope === `${novelId}:${episodeId}` ? s.characterCardEntityId : null)
   const contextSentence = useAssistPanelStore((s) => s.characterCardContext)
+  const currentCharOffset = useAssistPanelStore((s) => s.characterCardOffset)
   const closeCharacterCard = useAssistPanelStore((s) => s.closeCharacterCard)
-  const { data, isLoading, isError } = useEntityCard({ novelId, episodeId, word, contextSentence })
+  const { data, isLoading, isError } = useEntityCard({ novelId, episodeId, word, contextSentence, currentCharOffset })
 
   if (!word) return null
 
