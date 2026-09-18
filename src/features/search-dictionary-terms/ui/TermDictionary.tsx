@@ -11,6 +11,9 @@ interface TermDictionaryProps {
 
 const TYPE_LABELS: Record<string, string> = {
   CHARACTER: '인물',
+  PLACE: '장소',
+  EVENT: '사건',
+  WORD: '단어',
 }
 
 // GET /dictionary/terms only ever returns entries unlocked as of the
@@ -57,7 +60,7 @@ function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
             <li key={entry.id}>
               <button
                 type="button"
-                onClick={() => openCharacterCard(entry.name, entry.name)}
+                onClick={() => openCharacterCard(entry.name, entry.name, `${novelId}:${episodeId}`)}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left hover:bg-neutral-100"
               >
                 <BookOpen size={14} className="shrink-0 text-primary-600" />

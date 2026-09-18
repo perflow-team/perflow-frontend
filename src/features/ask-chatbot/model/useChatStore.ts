@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import { sendChatMessage } from '../api/chatApi'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
 
@@ -10,56 +11,61 @@ export interface ChatMessage {
   error?: boolean
 }
 
+export interface Conversation {
+  messages: ChatMessage[]
+  isSending: boolean
+}
+
 interface SendMessageParams {
   novelId: string
   episodeId: string
+  userId: number | null
   question: string
 }
-
 interface ChatStoreState {
-  messages: ChatMessage[]
-  isSending: boolean
+  conversations: Record<string, Conversation>
   sendMessage: (params: SendMessageParams) => Promise<void>
 }
 
-// Lives outside the ChatSidebar component on purpose: the sidebar unmounts
-// whenever the reader switches to another tab (용어사전/관계도), and a
-// component-local useState would lose the conversation on every switch.
-export const useChatStore = create<ChatStoreState>((set) => ({
-  messages: [],
-  isSending: false,
-  sendMessage: async ({ novelId, episodeId, question }) => {
-    const progress = useReaderStore.getState().progress
-    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: 'user', content: question }
-    set((state) => ({ messages: [...state.messages, userMessage], isSending: true }))
+export const EMPTY_CONVERSATION: Conversation = { messages: [], isSending: false }
+export const conversationKey = (novelId: string, userId: number | null) => JSON.stringify([userId ?? 'guest', novelId])
 
+// Scope both pending requests and saved messages. A response always goes back
+// to the book/account that sent it, even if navigation happened while waiting.
+export const useChatStore = create<ChatStoreState>()(persist((set, get) => ({
+  conversations: {},
+  sendMessage: async ({ novelId, episodeId, userId, question }) => {
+    const key = conversationKey(novelId, userId)
+    if (!question.trim() || get().conversations[key]?.isSending) return
+    const update = (change: (conversation: Conversation) => Conversation) => set(state => ({
+      conversations: { ...state.conversations, [key]: change(state.conversations[key] ?? EMPTY_CONVERSATION) },
+    }))
+    update(conversation => ({
+      messages: [...conversation.messages, { id: crypto.randomUUID(), role: 'user', content: question }],
+      isSending: true,
+    }))
     try {
       const { reply, context_used } = await sendChatMessage({
-        novelId,
-        message: question,
-        currentChapterNumber: Number(episodeId),
-        progress,
+        novelId, message: question, currentChapterNumber: Number(episodeId), progress: useReaderStore.getState().progress,
       })
-      set((state) => ({
-        messages: [
-          ...state.messages,
-          { id: crypto.randomUUID(), role: 'assistant', content: reply, contextUsed: context_used },
-        ],
-      }))
+      update(conversation => ({ ...conversation, messages: [...conversation.messages,
+        { id: crypto.randomUUID(), role: 'assistant', content: reply, contextUsed: context_used },
+      ] }))
     } catch {
-      set((state) => ({
-        messages: [
-          ...state.messages,
-          {
-            id: crypto.randomUUID(),
-            role: 'assistant',
-            content: '답변을 가져오지 못했어요. 다시 시도해 주세요.',
-            error: true,
-          },
-        ],
-      }))
+      update(conversation => ({ ...conversation, messages: [...conversation.messages,
+        { id: crypto.randomUUID(), role: 'assistant', content: '답변을 가져오지 못했어요. 다시 시도해 주세요.', error: true },
+      ] }))
     } finally {
-      set({ isSending: false })
+      update(conversation => ({ ...conversation, isSending: false }))
     }
   },
+}), {
+  name: 'perflow-book-conversations',
+  storage: createJSONStorage(() => ({
+    getItem: (key) => { try { return localStorage.getItem(key) } catch { return null } },
+    setItem: (key, value) => { try { localStorage.setItem(key, value) } catch { /* Keep this visit's messages in memory if storage is full. */ } },
+    removeItem: (key) => { try { localStorage.removeItem(key) } catch { /* Storage may be disabled by the browser. */ } },
+  })),
+  partialize: state => ({ conversations: Object.fromEntries(Object.entries(state.conversations)
+    .map(([key, conversation]) => [key, { messages: conversation.messages, isSending: false }])) }),
 }))

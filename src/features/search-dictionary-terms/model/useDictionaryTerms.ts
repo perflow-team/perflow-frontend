@@ -11,7 +11,6 @@ export function useDictionaryTerms({ novelId, episodeId, query }: UseDictionaryT
   return useQuery({
     queryKey: ['dictionary-terms', novelId, episodeId, query.trim()],
     queryFn: () => fetchDictionaryTerms({ novelId, currentChapterNumber: Number(episodeId), query: query.trim() }),
-    placeholderData: (prev) => prev,
     retry: false,
   })
 }

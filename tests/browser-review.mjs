@@ -25,6 +25,7 @@ async function setup(viewport, failCatalog = false) {
       ? route.fulfill({ status: 503, json: { detail: 'Test failure' }, headers: { 'Access-Control-Allow-Origin': '*' } })
       : json(novels)
     if (url.pathname.endsWith('/chapters')) return json([1, 2].map(number => ({ id: number, chapter_number: number, title: `${number}화 검증`, is_free: true })))
+    if (url.pathname.endsWith('/lookup-targets')) return json({ status: 'completed', targets: [] })
     const match = url.pathname.match(/\/chapters\/(\d+)$/)
     if (match) {
       const number = Number(match[1])
@@ -76,7 +77,7 @@ try {
     await setting(page, '넘기기 방식 전환 (스크롤)')
     await page.locator('[data-reader-pages]').waitFor()
     assert((await currentPage(page)).text.length < paragraph.length)
-    await page.locator('[data-reader-pages] > :last-child span.cursor-pointer').first().hover()
+    await page.locator('[data-reader-pages] > :last-child span.cursor-pointer').first().click()
     await page.getByRole('dialog').getByText('현재 회차에서 읽은 인물 설명', { exact: true }).waitFor()
     assert.equal(lookups[0].word, '초봉')
     assert.equal(lookups[0].context_sentence, paragraph)
@@ -95,8 +96,10 @@ try {
     await readAll(page, second)
     // Reflow keeps the last passage in view and remains inside the viewport.
     await page.setViewportSize({ width: viewport.width === 390 ? 320 : viewport.width - 100, height: viewport.height })
+    // ResizeObserver schedules pagination for the next layout/frame.
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
     const resized = await currentPage(page)
-    assert(resized.height <= resized.available + 1)
+    assert(resized.height <= resized.available + 1, JSON.stringify(resized))
     assert(saves.some(save => save.current_chapter_number === 2))
     console.log(`PASS reader: ${viewport.width}x${viewport.height}, all text, tooltip, chapter transition, fonts, resize`)
     await context.close()

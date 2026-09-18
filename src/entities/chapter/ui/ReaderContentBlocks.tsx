@@ -17,7 +17,7 @@ interface ReaderContentBlocksProps {
 }
 
 function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
-  const { getHandlers } = useEntityTrigger(onEntityTrigger)
+  const { getHandlers } = useEntityTrigger(onEntityTrigger, content)
 
   // Spec 2.3: 인물명/고유명사 마킹 — the chapter API now sends entity spans
   // ({word, start_offset, end_offset}) alongside the raw text, so only the
@@ -26,15 +26,15 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
     const blockEnd = block.start + block.text.length
     const marks = entities
       .filter((e) => e.start_offset < blockEnd && e.end_offset > block.start)
-      .sort((a, b) => a.start_offset - b.start_offset)
+      .sort((a, b) => a.start_offset - b.start_offset || b.end_offset - a.end_offset)
 
     const parts: ReactNode[] = []
     let cursor = block.start
 
     marks.forEach((mark, i) => {
-      const start = Math.max(cursor, mark.start_offset)
+      const start = Math.max(block.start, mark.start_offset)
       const end = Math.min(blockEnd, mark.end_offset)
-      if (end <= start) return
+      if (end <= start || start < cursor) return
       if (start > cursor) {
         parts.push(<span key={`t-${i}`}>{block.text.slice(cursor - block.start, start - block.start)}</span>)
       }
@@ -43,7 +43,11 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
         <span
           key={`e-${i}`}
           {...getHandlers(mark.word, block.contextSentence ?? block.text)}
-          className="cursor-pointer rounded-sm transition-colors hover:bg-primary-100"
+          role="button"
+          tabIndex={0}
+          aria-label={`${mark.word} 설명 보기`}
+          data-lookup-word={mark.word}
+          className={`reader-lookup cursor-pointer select-none rounded-sm underline decoration-dotted decoration-primary-400/60 underline-offset-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-400 ${prefs.nightMode ? 'hover:bg-primary-800 hover:text-white' : 'hover:bg-primary-100 hover:text-primary-900'}`}
         >
           {visibleText}
         </span>,

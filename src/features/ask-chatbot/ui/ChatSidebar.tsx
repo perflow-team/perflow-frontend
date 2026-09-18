@@ -35,6 +35,7 @@ function ChatSidebar({ novelId, episodeId }: ChatSidebarProps) {
     <div className="flex h-full flex-col">
       <div className="border-b border-neutral-200 px-4 py-3">
         <Badge tone="primary">진행도 {Math.round(progress * 100)}% 기준 답변</Badge>
+        <p className="mt-1.5 text-label-small text-neutral-500">이 작품의 대화만 표시해요.</p>
       </div>
 
       <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
@@ -80,7 +81,7 @@ function ChatSidebar({ novelId, episodeId }: ChatSidebarProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
+              if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault()
                 handleSubmit(e)
               }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import CharacterCard from '@/features/lookup-word/ui/CharacterCard'
 import ResumeSummaryModal from '@/features/resume-reading/ui/ResumeSummaryModal'
@@ -13,6 +13,8 @@ import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore
 import { parseChapterContent } from '@/entities/chapter/lib/parseChapterContent'
 import { fetchChapterContent, fetchChapters } from '@/entities/chapter/api/chapterApi'
 import Skeleton from '@/shared/ui/Skeleton'
+import { useLookupTargets } from '@/features/lookup-word/model/useLookupTargets'
+import type { EntityMark } from '@/entities/chapter/model/types'
 
 const ZOOM_STEPS = [0.85, 1, 1.15, 1.3, 1.45, 1.6]
 const LINE_SPACINGS = [1.8, 2.2, 2.6]
@@ -24,6 +26,7 @@ function ReaderPage() {
 
   const mode = useReaderStore((s) => s.mode)
   const openCharacterCard = useAssistPanelStore((s) => s.openCharacterCard)
+  const openLookup = useCallback((word: string, context: string) => openCharacterCard(word, context, `${novelId}:${episodeId}`), [openCharacterCard, novelId, episodeId])
 
   const [zoomIndex, setZoomIndex] = useState(1)
   const [lineSpacingIndex, setLineSpacingIndex] = useState(0)
@@ -45,7 +48,14 @@ function ReaderPage() {
   })
 
   const content = useMemo(() => (chapter ? parseChapterContent(chapter.content) : []), [chapter])
-  const entities = useMemo(() => chapter?.entities ?? [], [chapter])
+  const lookup = useLookupTargets(novelId, episodeId, !!chapter)
+  const entities = useMemo(() => {
+    const unique = new Map<string, EntityMark>()
+    for (const mark of [...(chapter?.entities ?? []), ...(lookup.data?.targets ?? [])]) {
+      unique.set(`${mark.start_offset}:${mark.end_offset}`, mark)
+    }
+    return [...unique.values()]
+  }, [chapter, lookup.data])
   const totalChars = chapter?.content.length ?? 0
 
   useReaderProgress({ novelId, episodeId, totalChars })
@@ -74,6 +84,8 @@ function ReaderPage() {
         novelId={novelId}
         episodeId={episodeId}
         title={title}
+        lookupStatus={lookup.isError || lookup.data?.status === 'failed' ? 'failed' : lookup.data?.status ?? 'preparing'}
+        onRetryLookup={() => void lookup.retry()}
         nightMode={nightMode}
         fontFamily={fontFamily}
         onZoomIn={() => setZoomIndex((i) => Math.min(ZOOM_STEPS.length - 1, i + 1))}
@@ -105,19 +117,21 @@ function ReaderPage() {
         {chapter &&
           (mode === 'scroll' ? (
             <ScrollReader
+              key={`${novelId}:${episodeId}`}
               ref={readerRef}
               content={content}
               entities={entities}
               prefs={prefs}
-              onEntityTrigger={openCharacterCard}
+              onEntityTrigger={openLookup}
             />
           ) : (
             <PaginatedReader
+              key={`${novelId}:${episodeId}`}
               ref={readerRef}
               content={content}
               entities={entities}
               prefs={prefs}
-              onEntityTrigger={openCharacterCard}
+              onEntityTrigger={openLookup}
             />
           ))}
       </ReaderShell>

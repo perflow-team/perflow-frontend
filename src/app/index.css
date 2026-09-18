@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @import "pretendard/dist/web/variable/pretendardvariable.css";
 
+.reader-lookup {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+
 html,
 .overflow-y-auto,
 .scrollbar-hide {

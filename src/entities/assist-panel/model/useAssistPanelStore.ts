@@ -7,8 +7,9 @@ interface AssistPanelState {
   // Sentence the entity was clicked in — required by POST /ai/novels/{id}/dictionary
   // alongside the word itself (characterCardEntityId doubles as the word here).
   characterCardContext: string | null
+  characterCardScope: string | null
   resumeSummaryDismissed: boolean
-  openCharacterCard: (word: string, contextSentence: string) => void
+  openCharacterCard: (word: string, contextSentence: string, scope: string) => void
   closeCharacterCard: () => void
   setActivePanel: (panel: AssistPanelState['activePanel']) => void
   dismissResumeSummary: () => void
@@ -23,10 +24,11 @@ export const useAssistPanelStore = create<AssistPanelState>()(
       activePanel: 'closed',
       characterCardEntityId: null,
       characterCardContext: null,
+      characterCardScope: null,
       resumeSummaryDismissed: false,
-      openCharacterCard: (word, contextSentence) =>
-        set({ characterCardEntityId: word, characterCardContext: contextSentence }),
-      closeCharacterCard: () => set({ characterCardEntityId: null, characterCardContext: null }),
+      openCharacterCard: (word, contextSentence, scope) =>
+        set({ characterCardEntityId: word, characterCardContext: contextSentence, characterCardScope: scope }),
+      closeCharacterCard: () => set({ characterCardEntityId: null, characterCardContext: null, characterCardScope: null }),
       setActivePanel: (panel) => set({ activePanel: panel }),
       dismissResumeSummary: () => set({ resumeSummaryDismissed: true }),
     }),

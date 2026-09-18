@@ -18,7 +18,7 @@ interface CharacterCardProps {
 // tag is empty for plain words/phrases (not a character/place/event), so the
 // type badge only renders when there's something to label.
 function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
-  const word = useAssistPanelStore((s) => s.characterCardEntityId)
+  const word = useAssistPanelStore((s) => s.characterCardScope === `${novelId}:${episodeId}` ? s.characterCardEntityId : null)
   const contextSentence = useAssistPanelStore((s) => s.characterCardContext)
   const closeCharacterCard = useAssistPanelStore((s) => s.closeCharacterCard)
   const { data, isLoading, isError } = useEntityCard({ novelId, episodeId, word, contextSentence })

@@ -3,6 +3,7 @@ import { useAssistPanelStore } from '@/entities/assist-panel/model/useAssistPane
 import ChatSidebar from '@/features/ask-chatbot/ui/ChatSidebar'
 import CharacterRelationsGraph from '@/features/view-character-relations/ui/CharacterRelationsGraph'
 import TermDictionary from '@/features/search-dictionary-terms/ui/TermDictionary'
+import { useAuthStore } from '@/entities/user/model/useAuthStore'
 
 interface AssistSidebarProps {
   novelId: string
@@ -20,8 +21,9 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-md px-3 py-1.5 text-label-medium font-medium transition ${
-        active ? 'bg-white text-neutral-900 shadow-sm' : 'text-neutral-500 hover:text-neutral-700'
+      aria-pressed={active}
+      className={`assist-tab min-h-10 cursor-pointer rounded-md border px-3 py-1.5 text-label-medium font-medium outline-none transition-all duration-150 hover:-translate-y-px hover:shadow-sm active:translate-y-0 active:scale-[0.97] focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 motion-reduce:transform-none ${
+        active ? 'border-primary-300 bg-white text-primary-800 shadow-sm hover:bg-primary-50' : 'border-transparent text-neutral-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800'
       }`}
     >
       {children}
@@ -35,6 +37,7 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
 function AssistSidebar({ novelId, episodeId }: AssistSidebarProps) {
   const activePanel = useAssistPanelStore((s) => s.activePanel)
   const setActivePanel = useAssistPanelStore((s) => s.setActivePanel)
+  const userId = useAuthStore((s) => s.user?.id ?? 'guest')
 
   if (activePanel === 'closed') return null
 
@@ -45,7 +48,7 @@ function AssistSidebar({ novelId, episodeId }: AssistSidebarProps) {
         onClick={() => setActivePanel('closed')}
         role="presentation"
       />
-      <aside className="fixed inset-x-0 bottom-0 z-40 flex h-[70vh] flex-col rounded-t-2xl bg-white shadow-2xl lg:static lg:h-full lg:w-80 lg:shrink-0 lg:rounded-none lg:border-l lg:border-neutral-200 lg:shadow-none">
+      <aside aria-label="독서 도우미" className="fixed inset-x-0 bottom-0 z-40 flex h-[70dvh] flex-col rounded-t-2xl bg-white shadow-2xl lg:static lg:h-full lg:w-80 lg:shrink-0 lg:rounded-none lg:border-l lg:border-neutral-200 lg:shadow-none">
         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-3 py-2">
           <div className="flex gap-1 rounded-lg bg-neutral-100 p-1">
             <TabButton active={activePanel === 'chat'} onClick={() => setActivePanel('chat')}>
@@ -69,9 +72,9 @@ function AssistSidebar({ novelId, episodeId }: AssistSidebarProps) {
         </div>
 
         <div className="min-h-0 flex-1">
-          {activePanel === 'chat' && <ChatSidebar novelId={novelId} episodeId={episodeId} />}
+          {activePanel === 'chat' && <ChatSidebar key={`${userId}:${novelId}`} novelId={novelId} episodeId={episodeId} />}
           {activePanel === 'dictionary' && <TermDictionary novelId={novelId} episodeId={episodeId} />}
-          {activePanel === 'relations' && <CharacterRelationsGraph novelId={novelId} episodeId={episodeId} />}
+          {activePanel === 'relations' && <CharacterRelationsGraph key={`${novelId}:${episodeId}`} novelId={novelId} episodeId={episodeId} />}
         </div>
       </aside>
     </>

@@ -1,7 +1,7 @@
 import { api } from '@/shared/api/base'
 
 export interface TermEntry {
-  id: number
+  id: number | string
   name: string
   type: string
 }
