@@ -26,8 +26,9 @@ try {
     await element.scrollIntoViewIfNeeded()
     const before = requests.length
     await element.hover()
-    await page.waitForTimeout(250)
+    await page.waitForTimeout(1500)
     assert.equal(requests.length, before)
+    assert.equal(await page.getByRole('dialog').count(), 0, 'Hover must not open a prepared card')
     const responsePromise = page.waitForResponse(r => new URL(r.url()).pathname.endsWith('/dictionary') && r.request().method() === 'POST')
     const start = performance.now()
     await element.click()
@@ -58,7 +59,7 @@ try {
   await page.getByRole('dialog').locator('p').first().waitFor()
   await page.screenshot({ path: '/private/tmp/perflow-precomputed-reader.png' })
   assert.deepEqual(errors, [])
-  const report = { status: 'passed', dictionary_api: 'real local code + configured PostgreSQL', progress_api: 'mocked to preserve user data', timings, spoiler_checks: ['current sentence cutoff', 'chapter 1 hides chapter 50 reveal'], errors }
+  const report = { status: 'passed', frontend: base, dictionary_api: api, progress_api: 'mocked to preserve user data', timings, spoiler_checks: ['current sentence cutoff', 'chapter 1 hides chapter 50 reveal'], errors }
   await writeFile('/private/tmp/perflow-precomputed-browser.json', JSON.stringify(report, null, 2))
   console.log(JSON.stringify(report, null, 2))
 } catch (error) {

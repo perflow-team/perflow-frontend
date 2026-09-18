@@ -131,7 +131,7 @@ function ReaderShell({
       </header>
 
       <div className={`flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-3 py-1.5 text-center text-label-small ${nightMode ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-50 text-neutral-500'}`}>
-        <span>밑줄 단어를 클릭해 설명 보기 · 모바일에서는 길게 누르기</span>
+        <span>밑줄 단어에 마우스를 올리면 강조돼요 · 클릭해서 설명 보기</span>
         {lookupStatus === 'preparing' && <span role="status">설명할 단어를 준비하고 있어요…</span>}
         {(lookupStatus === 'failed' || lookupStatus === 'not_prepared') && <span role="status">아직 준비되지 않은 설명이 있어요.</span>}
       </div>

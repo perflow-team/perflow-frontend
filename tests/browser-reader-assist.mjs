@@ -55,22 +55,32 @@ try{
  const desktop=await setup();const {page,lookups,context,navigate}=desktop
  await ready(page)
  const word=page.locator('[data-lookup-word="군산"]').first()
- const before=await word.evaluate(el=>getComputedStyle(el).backgroundColor)
- await word.hover();await page.waitForTimeout(650)
- assert.notEqual(await word.evaluate(el=>getComputedStyle(el).backgroundColor),before)
- assert.equal(lookups.length,0,'Hover must not request or open a definition')
- assert.equal(await page.getByRole('dialog').count(),0)
  assert.equal(await page.locator('[data-lookup-word="오늘"]').count(),0,'Unindexed ordinary words must not claim to have explanations')
  for(const [term] of terms){
-  await page.locator(`[data-lookup-word="${term}"]`).first().click()
+  const target=page.locator(`[data-lookup-word="${term}"]`).first()
+  await page.mouse.move(0,0);await page.waitForTimeout(250)
+  const background=await target.evaluate(el=>getComputedStyle(el).backgroundColor)
+  const calls=lookups.length
+  await target.hover();await page.waitForTimeout(1200)
+  assert.notEqual(await target.evaluate(el=>getComputedStyle(el).backgroundColor),background,`${term}: hover must highlight`)
+  assert.equal(lookups.length,calls,`${term}: hover must not request a definition`)
+  assert.equal(await page.getByRole('dialog').count(),0,`${term}: hover must not open a card`)
+  await target.click()
   await page.getByRole('dialog').getByText(`${term}의 자세한 설명입니다.`,{exact:true}).waitFor()
+  assert.equal(lookups.length,calls+1,'A click must make exactly one lookup')
   assert.equal(lookups.at(-1).word,term)
   assert.equal(lookups.at(-1).current_char_offset, content.indexOf('.')+1, 'The clicked sentence cutoff must reach the API')
   assert(lookups.at(-1).context_sentence.includes('초봉은 군산'))
   await closeCard(page)
+  await target.hover();await page.waitForTimeout(1200)
+  assert.equal(await page.getByRole('dialog').count(),0,'Returning to a word must not reopen its card')
+  assert.equal(lookups.length,calls+1)
  }
- await word.focus();await page.keyboard.press('Enter');await page.getByRole('dialog').waitFor();await closeCard(page)
- console.log('PASS: all four types, hover-only highlight, click/keyboard card, no unindexed false affordance')
+ for(const key of ['Enter','Space']){
+  await word.focus();await page.keyboard.press(key)
+  await page.getByRole('dialog').waitFor();await closeCard(page)
+ }
+ console.log('PASS: all four types, sustained/repeated hover only highlights, click opens one card, Enter/Space activation')
  await openPanel(page)
  const tab=page.getByRole('button',{name:'관계도',exact:true})
  const tabBefore=await tab.evaluate(el=>getComputedStyle(el).backgroundColor)
@@ -108,41 +118,20 @@ try{
  for(const viewport of [{width:390,height:844},{width:820,height:1180}]){
   const mobile=await setup({viewport,isMobile:true,hasTouch:true});const p=mobile.page
   await ready(p)
+  // Holding a touch must never open a card automatically.
   const client=await mobile.context.newCDPSession(p)
-  async function press(action){
-   const target=p.locator('[data-lookup-word="군산"]').first();const box=await target.boundingBox();const x=box.x+box.width/2,y=box.y+box.height/2
-   await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]})
-   if(action==='hold'){
-    await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+2,y:y+1}]})
-    await p.waitForTimeout(600)
-   }else if(action==='scroll'){
-    await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y+45}]})
-    await p.waitForTimeout(600)
-   }else if(action==='cancel'){
-    await client.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]})
-    await p.waitForTimeout(600);return
-   }
-   await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]})
-  }
-  await press('hold')
-  await p.getByRole('dialog').getByText('군산의 자세한 설명입니다.',{exact:true}).waitFor()
-  await closeCard(p);await p.waitForTimeout(1100)
-  const calls=mobile.lookups.length
-  await press('scroll');assert.equal(await p.getByRole('dialog').count(),0)
-  await press('cancel');assert.equal(await p.getByRole('dialog').count(),0)
-  assert.equal(mobile.lookups.length,calls)
-  // A pending press is cancelled when changing chapter.
   const box=await p.locator('[data-lookup-word="군산"]').first().boundingBox()
-  await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+2,y:box.y+2}]})
-  await mobile.navigate(1,2)
+  await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+box.width/2,y:box.y+box.height/2}]})
+  await p.waitForTimeout(1200)
+  assert.equal(await p.getByRole('dialog').count(),0,'Long press must not activate a definition')
+  assert.equal(mobile.lookups.length,0)
   await client.send('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]})
-  await p.waitForTimeout(600);assert.equal(await p.getByRole('dialog').count(),0)
   await openPanel(p,'관계도')
   await p.getByRole('heading',{name:'관계별 인물 그룹',exact:true}).waitFor()
   const bounds=await p.locator('aside').boundingBox();assert(bounds.x>=0&&bounds.x+bounds.width<=viewport.width)
   await p.screenshot({path:`/private/tmp/perflow-assist-${viewport.width}.png`})
   await mobile.context.close()
-  console.log(`PASS: ${viewport.width}px touch long-press, jitter tolerance, scroll/cancel/navigation cancellation, relation layout`)
+  console.log(`PASS: ${viewport.width}px no automatic long-press card, relation layout`)
  }
  assert.deepEqual(errors,[])
  console.log('PASS: no browser errors; API responses mocked, native Chrome touch events used')

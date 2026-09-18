@@ -17,7 +17,7 @@ interface ReaderContentBlocksProps {
 }
 
 function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
-  const { getHandlers } = useEntityTrigger(onEntityTrigger, content)
+  const { getHandlers } = useEntityTrigger(onEntityTrigger)
 
   // Spec 2.3: 인물명/고유명사 마킹 — the chapter API now sends entity spans
   // ({word, start_offset, end_offset}) alongside the raw text, so only the

@@ -2,10 +2,9 @@
 
 ## 적용 내용
 
-1. 설명 대상 단어는 호버할 때 배경색만 강조한다. 클릭·Enter/Space로 자세한 설명을 열며,
-   모바일·태블릿은 500ms 길게 누르기도 지원한다. 10px 이하의 작은 움직임은 허용하고,
-   스크롤·터치 취소·회차 전환 시 대기 중 동작을 취소한다. 손을 뗄 때 생성되는 클릭으로
-   새 설명 창이 곧바로 닫히던 문제를 실제 터치 이벤트로 재현하고 수정했다.
+1. 설명 대상 단어는 호버할 때 배경색만 강조한다. 클릭·Enter/Space로 자세한 설명을 연다.
+   길게 누르기 타이머·포인터 처리·전역 클릭 차단을 제거했다. 호버/누르고 있는 동안에는
+   설명 요청이나 창 표시가 발생하지 않으며, 화면 안내에서도 길게 누르기를 제거했다.
 2. 서버의 기존 표시 목록이 인물명만 포함하던 문제를 해결하기 위해 회차별 설명 대상
    API를 연결했다. 원문에 존재하며 설명이 생성된 인물·장소·사건·어려운 단어만 추가로
    표시한다. 준비 상태 및 재시도를 제공하며, 호버로 AI 요청을 발생시키지 않는다.
@@ -23,9 +22,9 @@
 
 - 프론트엔드 단위 테스트 22개 통과: 대화의 작품/계정/요청 상태 분리, 저장소 실패,
   그룹 분류·분리·중복 소속, 기존 설명 응답 처리와 페이지 본문 보존.
-- `tests/browser-reader-assist.mjs`: 실제 Chrome에서 호버만으로 조회하지 않음,
+- `tests/browser-reader-assist.mjs`: 실제 Chrome에서 네 종류 모두 1.2초 호버/재호버 시 배경색만 변경되고 조회·창 표시가 없음,
   네 종류의 클릭 설명, 키보드 입력, 작품 이동 중 늦은 답변, 새로고침 복원,
-  버튼 호버 반응, 그룹 기준/설명/필터, 390px 모바일·820px 태블릿의 실제 터치 이벤트 검증.
+  버튼 호버 반응, 그룹 기준/설명/필터, 390px·820px에서 길게 눌러도 자동으로 설명을 열지 않는지 검증.
 - `tests/browser-review.mjs`: 기존 페이지·검색 8개 회귀 시나리오 통과.
 - TypeScript, Vite 빌드, oxlint, `git diff --check` 통과.
 - 실제 PostgreSQL 임시 스키마 및 gpt-5.6-luna로 네 종류의 대상 생성과 상세 조회 확인.
@@ -51,3 +50,45 @@ node tests/browser-review.mjs
 - `tests/browser-precomputed-dictionary.mjs`는 실제 로컬 API/DB로 클릭 설명과 스포일러 차단을 검사한다.
   진도 저장 API만 가로채 실제 사용자 기록을 보존한다.
 - 실제 DB 생성/근거 검증 기록은 백엔드 `PRECOMPUTED_DICTIONARY_REVIEW.md` 참조.
+
+## 운영 사이트 호버 문제 진단
+
+2026-09-18 `https://perflow-frontend.vercel.app/novel/2/read/1`에서 확인했다.
+
+- 진단 당시 사이트는 `assets/index-DxpyCG1E.js`를 제공했다. 최신 코드의
+  `data-lookup-word` 표시가 없고, 군산 위에 2초 동안 마우스를 올리자 클릭 없이
+  설명 API 1회 호출 및 설명 창 1개가 발생했다.
+- 해당 요청에는 최신 API가 사용하는 `current_char_offset`도 없었다.
+  따라서 배포된 프론트엔드가 저장소의 최신 설명 조회 방식과 달랐다.
+- 로컬 최신 코드의 마우스 호버는 이미 CSS 강조만 수행했다. 별도로 남아 있던
+  모바일 길게 누르기 타이머와 전역 클릭 차단을 이번 수정에서 제거했다.
+- GitHub의 직전 main 커밋 `500bcc6`에는 배포 상태/check run이 없고,
+  저장소 deployments 조회도 비어 있었다. 자동 배포가 중단된 구체적 이유는
+  Vercel 프로젝트 관리자 화면에서 확인해야 한다.
+
+로컬 수정 화면과 운영 API/DB 조합에서도 군산·정주사·미두의 1.5초 호버 시
+창/조회가 없고 클릭 시 준비된 DB 설명을 표시함을 확인했다(450~605ms).
+문장 위치 및 회차 스포일러 차단도 통과했다.
+
+### Vercel 관리자에게 필요한 작업
+
+1. `perflow-frontend.vercel.app`에 연결된 프로젝트의 Git 연결이
+   `perflow-team/perflow-frontend`, 배포할 브랜치가 `main`인지 확인한다.
+2. 이번 수정 커밋(`fix: open dictionary cards only on explicit activation`)을
+   포함하는 최신 main으로 Production 배포한다. 과거 커밋을 다시 배포하는 것으로는
+   변경 사항이 포함되지 않는다.
+3. API 주소는 `https://perflow-backend.onrender.com`을 사용한다
+   (`VITE_API_BASE_URL`을 설정했다면 이 주소로 지정). 기본 코드도 이 주소를 사용한다.
+4. 배포 후 독서 화면에 “밑줄 단어에 마우스를 올리면 강조돼요 · 클릭해서 설명 보기”가
+   보이는지 확인한다. 군산을 2초 이상 호버하면 배경색만 바뀌고 클릭하면 설명이 열려야 한다.
+5. 실제 API/DB를 사용한 회귀 검증은 아래처럼 실행할 수 있다. 사용자 진도 저장만
+   가로채며, 사전 조회는 실제 API로 확인한다.
+
+```sh
+BASE_URL=https://perflow-frontend.vercel.app \
+API_URL=https://perflow-backend.onrender.com \
+node tests/browser-precomputed-dictionary.mjs
+```
+
+수정 코드 검증과 원격 푸시는 운영 사이트의 배포 완료를 의미하지 않는다.
+이번 작업 환경에는 Vercel 프로젝트 로그인 권한이 없어 Production 배포는 관리자가 진행해야 한다.
