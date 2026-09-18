@@ -92,3 +92,11 @@ node tests/browser-precomputed-dictionary.mjs
 
 수정 코드 검증과 원격 푸시는 운영 사이트의 배포 완료를 의미하지 않는다.
 이번 작업 환경에는 Vercel 프로젝트 로그인 권한이 없어 Production 배포는 관리자가 진행해야 한다.
+
+## 일반 뜻풀이의 진도 제한 해제
+
+- API의 `explanation_scope: general_meaning` 응답은 `뜻` 필드만 표시한다.
+- `is_spoiler_filtered: false`이므로 기존 UI에서 “현재 진행도까지만 표시” 배지를 띄우지 않는다.
+- 브라우저 회귀 검사에 미두 뜻의 진도 0 조회 및 월사금의 첫 회차 조회를 추가했다.
+- 인물 설명의 문장/회차 스포일러 제한은 유지한다. 데이터 생성 수량과 보류 항목은
+  백엔드 `PRECOMPUTED_DICTIONARY_REVIEW.md`의 일반 뜻풀이 추가 항목을 참조한다.

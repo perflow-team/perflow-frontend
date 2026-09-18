@@ -37,11 +37,20 @@ try {
     assert.equal(data.source, 'precomputed')
     assert.equal(requests.at(-1).current_char_offset, mark.lookup_offset)
     await page.getByRole('dialog').getByText(data.fields[0].value, { exact: true }).waitFor()
+    assert.equal(await page.getByRole('dialog').getByText('현재 진행도까지만 표시', { exact: true }).count(), data.explanation_scope === 'general_meaning' ? 0 : 1)
     timings.push({ word, click_to_display_ms: Math.round(performance.now() - start), fields: data.fields.length })
     await page.getByRole('dialog').getByRole('button', { name: '닫기', exact: true }).click()
-    // The card cannot be exposed before its first sentence's cutoff.
-    const blocked = await (await context.request.post(`${api}/api/ai/novels/2/dictionary`, { data: { word, current_chapter_number: 1, current_char_offset: data.available_after_offset - 1 } })).json()
-    assert.equal(blocked.source, 'unavailable')
+    // Plain definitions are unrestricted; story cards retain sentence cutoffs.
+    if (data.explanation_scope === 'general_meaning') {
+      const unrestricted = await (await context.request.post(`${api}/api/ai/novels/2/dictionary`, { data: { word, current_chapter_number: 1, current_char_offset: 0 } })).json()
+      assert.equal(unrestricted.is_spoiler_filtered, false)
+      assert.deepEqual(unrestricted.fields, data.fields)
+      assert.deepEqual(data.fields.map(field => field.label), ['뜻'])
+      assert.equal(data.source_chapter_number, null)
+    } else {
+      const blocked = await (await context.request.post(`${api}/api/ai/novels/2/dictionary`, { data: { word, current_chapter_number: 1, current_char_offset: data.available_after_offset - 1 } })).json()
+      assert.equal(blocked.source, 'unavailable')
+    }
   }
   // A known late revelation in the test novel must not leak into chapter one.
   const first = await (await context.request.post(`${api}/api/ai/novels/1/dictionary`, { data: { word: '김철수', current_chapter_number: 1, current_char_offset: 1000 } })).json()
@@ -50,6 +59,13 @@ try {
   const later = await (await context.request.post(`${api}/api/ai/novels/1/dictionary`, { data: { word: '김철수', current_chapter_number: 50, current_char_offset: 1000 } })).json()
   assert.equal(later.source, 'precomputed')
   assert(JSON.stringify(later).includes('마왕'))
+  // A general meaning from a later chapter is available at the very beginning,
+  // without exposing that chapter or any story example.
+  const earlyMeaning = await (await context.request.post(`${api}/api/ai/novels/2/dictionary`, { data: { word: '월사금', current_chapter_number: 1, current_char_offset: 0 } })).json()
+  assert.equal(earlyMeaning.explanation_scope, 'general_meaning')
+  assert.equal(earlyMeaning.is_spoiler_filtered, false)
+  assert.equal(earlyMeaning.source_chapter_number, null)
+  assert.deepEqual(earlyMeaning.fields.map(field => field.label), ['뜻'])
   await page.getByRole('button', { name: '챗봇 토글', exact: true }).click()
   await page.getByRole('button', { name: '용어사전', exact: true }).click()
   await page.getByPlaceholder('용어 검색').waitFor()
@@ -59,7 +75,7 @@ try {
   await page.getByRole('dialog').locator('p').first().waitFor()
   await page.screenshot({ path: '/private/tmp/perflow-precomputed-reader.png' })
   assert.deepEqual(errors, [])
-  const report = { status: 'passed', frontend: base, dictionary_api: api, progress_api: 'mocked to preserve user data', timings, spoiler_checks: ['current sentence cutoff', 'chapter 1 hides chapter 50 reveal'], errors }
+  const report = { status: 'passed', frontend: base, dictionary_api: api, progress_api: 'mocked to preserve user data', timings, spoiler_checks: ['story sentence cutoff', 'chapter 1 hides chapter 50 reveal', 'plain meanings available from the beginning without story fields'], errors }
   await writeFile('/private/tmp/perflow-precomputed-browser.json', JSON.stringify(report, null, 2))
   console.log(JSON.stringify(report, null, 2))
 } catch (error) {
