@@ -1,4 +1,4 @@
-import { BookOpen, Search } from 'lucide-react'
+import { BookOpen, Flame, MapPin, Search, User } from 'lucide-react'
 import { useState } from 'react'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
 import { useDictionaryTerms } from '@/features/search-dictionary-terms/model/useDictionaryTerms'
@@ -17,7 +17,13 @@ const TYPE_LABELS: Record<string, string> = {
   WORD: '단어',
 }
 
-// Both list and card queries use the chapter-scoped reading cutoff.
+const TYPE_ICONS: Record<string, typeof User> = {
+  CHARACTER: User,
+  PLACE: MapPin,
+  EVENT: Flame,
+  WORD: BookOpen,
+}
+
 function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
   const [query, setQuery] = useState('')
   const currentCharOffset = useReaderStore((s) => s.cutoff.scope === `${novelId}:${episodeId}` ? s.cutoff.offset : 0)
@@ -32,7 +38,7 @@ function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="용어 검색"
+            placeholder="인물, 장소, 사건, 용어 검색"
             className="w-full bg-transparent text-body-medium text-neutral-900 outline-none placeholder:text-neutral-400"
           />
         </div>
@@ -55,21 +61,24 @@ function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
           </p>
         )}
         <ul className="space-y-1">
-          {terms?.map((entry) => (
-            <li key={entry.id}>
-              <button
-                type="button"
-                onClick={() => openCharacterCard(entry.name, entry.name, `${novelId}:${episodeId}`, currentCharOffset)}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left hover:bg-neutral-100"
-              >
-                <BookOpen size={14} className="shrink-0 text-primary-600" />
-                <span className="text-body-medium font-medium text-neutral-900">{entry.name}</span>
-                <span className="ml-auto text-label-small text-neutral-400">
-                  {TYPE_LABELS[entry.type] ?? entry.type}
-                </span>
-              </button>
-            </li>
-          ))}
+          {terms?.map((entry) => {
+            const TypeIcon = TYPE_ICONS[entry.type] ?? BookOpen
+            return (
+              <li key={entry.id}>
+                <button
+                  type="button"
+                  onClick={() => openCharacterCard(entry.name, entry.name, `${novelId}:${episodeId}`, currentCharOffset)}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left hover:bg-neutral-100"
+                >
+                  <TypeIcon size={14} className="shrink-0 text-primary-600" />
+                  <span className="text-body-medium font-medium text-neutral-900">{entry.name}</span>
+                  <span className="ml-auto text-label-small text-neutral-400">
+                    {TYPE_LABELS[entry.type] ?? entry.type}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>

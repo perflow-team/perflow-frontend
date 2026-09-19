@@ -13,8 +13,6 @@ interface PaginatedReaderProps {
   onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
 }
 
-// Render only the current page. Measure oversized paragraphs in the same font
-// and width, splitting them into fragments with their original source offsets.
 const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
   ({ content, entities, prefs, onEntityTrigger, scope }, ref) => {
     const outerRef = useRef<HTMLDivElement>(null)
@@ -55,8 +53,6 @@ const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
         probe.remove()
       }
 
-      // Resizing or changing fonts keeps the current passage in view. A new
-      // chapter starts at its first page instead of inheriting the old index.
       const previous = layoutRef.current
       const anchor = previous?.content === content
         ? previous.pages[useReaderStore.getState().currentPage - 1]?.[0]?.start ?? 0
@@ -74,7 +70,6 @@ const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
     useLayoutEffect(() => {
       recalculate()
       let active = true
-      // Font loading can change wrapping without changing the outer box size.
       void document.fonts.ready.then(() => { if (active) recalculate() })
       const observer = new ResizeObserver(recalculate)
       if (outerRef.current) observer.observe(outerRef.current)

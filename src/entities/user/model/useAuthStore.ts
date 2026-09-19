@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { configureApiAuth } from '@/shared/api/base'
 
 export interface UserInfo {
   id: number
@@ -27,4 +28,9 @@ export const useAuthStore = create<AuthState>()(
       storage: createJSONStorage(() => localStorage),
     },
   ),
+)
+
+configureApiAuth(
+  () => useAuthStore.getState().accessToken,
+  () => useAuthStore.getState().logout(),
 )

@@ -22,9 +22,6 @@ interface FetchCharacterRelationsParams {
   currentChapterNumber: number
 }
 
-// GET /api/novels/{novelId}/characters/relations — the backend replays
-// CHARACTER_RELATION_EVENTS (ADD/END/RETRACT) up to current_chapter_number
-// and returns only the relations that are live as of that chapter.
 export async function fetchCharacterRelations({
   novelId,
   currentChapterNumber,

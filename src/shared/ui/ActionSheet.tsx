@@ -15,9 +15,6 @@ interface ActionSheetProps {
   panelRef?: RefObject<HTMLDivElement | null>
 }
 
-// Desktop (>=1024px): an anchored dropdown menu (positioned by the caller's `relative` wrapper).
-// Mobile/tablet (<1024px): the same item list instead slides up as a bottom
-// action sheet with a backdrop, matching native-app menu conventions.
 function ActionSheet({ open, onClose, items, align = 'right', panelRef }: ActionSheetProps) {
   if (!open) return null
 

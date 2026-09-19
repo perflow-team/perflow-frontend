@@ -3,6 +3,7 @@ import { GenrePage } from '@/pages/genre'
 import { HomePage } from '@/pages/home'
 import { LoginPage } from '@/pages/login'
 import { MyPage } from '@/pages/my-page'
+import { NotFoundPage } from '@/pages/not-found'
 import { NovelDetailPage } from '@/pages/novel-detail'
 import { RankingPage } from '@/pages/ranking'
 import { ReaderPage } from '@/pages/reader'
@@ -19,6 +20,7 @@ function App() {
       <Route path="/search" element={<SearchPage />} />
       <Route path="/novel/:novelId" element={<NovelDetailPage />} />
       <Route path="/novel/:novelId/read/:episodeId" element={<ReaderPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

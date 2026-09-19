@@ -14,13 +14,6 @@ interface ResumeSummaryModalProps {
 
 const MIN_DAYS_SINCE_VISIT = 1
 
-// Spec 3.3: only appears when a last-read position exists AND enough time
-// has passed (or the reader came back via another episode). Once dismissed,
-// it stays dismissed for the rest of the session (see useAssistPanelStore).
-//
-// Note: GET /novels/{id}/progress only returns {current_chapter_number,
-// progress_percentage, updated_at} — there's no summary-text endpoint yet,
-// so this shows the real chapter/progress instead of a fabricated recap.
 function ResumeSummaryModal({ novelId, episodeId, onResume, onRestart }: ResumeSummaryModalProps) {
   const [entry] = useState(() => ({ episodeId, visitedAt: Date.now() }))
   const dismissed = useAssistPanelStore((s) => s.resumeSummaryDismissed)
@@ -32,13 +25,9 @@ function ResumeSummaryModal({ novelId, episodeId, onResume, onRestart }: ResumeS
     retry: false,
   })
 
-  // updated_at is null until the reader has actually saved progress once —
-  // treat that as "no reading history yet" rather than "infinitely overdue".
   if (!data || dismissed || !data.updated_at) return null
 
   const daysSinceLastVisit = (entry.visitedAt - new Date(data.updated_at).getTime()) / (1000 * 60 * 60 * 24)
-  // Only compare the chapter used to enter the reader. Ordinary next/previous
-  // navigation is part of the same visit and must not reopen this overlay.
   const visitedOtherEpisodeSince = data.current_chapter_number !== Number(entry.episodeId)
   const shouldShow = daysSinceLastVisit >= MIN_DAYS_SINCE_VISIT || visitedOtherEpisodeSince
 

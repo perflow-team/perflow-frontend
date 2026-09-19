@@ -30,8 +30,6 @@ interface ChatStoreState {
 export const EMPTY_CONVERSATION: Conversation = { messages: [], isSending: false }
 export const conversationKey = (novelId: string, userId: number | null) => JSON.stringify([userId ?? 'guest', novelId])
 
-// Scope both pending requests and saved messages. A response always goes back
-// to the book/account that sent it, even if navigation happened while waiting.
 export const useChatStore = create<ChatStoreState>()(persist((set, get) => ({
   conversations: {},
   sendMessage: async ({ novelId, episodeId, userId, question }) => {
@@ -63,8 +61,8 @@ export const useChatStore = create<ChatStoreState>()(persist((set, get) => ({
   name: 'perflow-book-conversations',
   storage: createJSONStorage(() => ({
     getItem: (key) => { try { return localStorage.getItem(key) } catch { return null } },
-    setItem: (key, value) => { try { localStorage.setItem(key, value) } catch { /* Keep this visit's messages in memory if storage is full. */ } },
-    removeItem: (key) => { try { localStorage.removeItem(key) } catch { /* Storage may be disabled by the browser. */ } },
+    setItem: (key, value) => { try { localStorage.setItem(key, value) } catch {} },
+    removeItem: (key) => { try { localStorage.removeItem(key) } catch {} },
   })),
   partialize: state => ({ conversations: Object.fromEntries(Object.entries(state.conversations)
     .map(([key, conversation]) => [key, { messages: conversation.messages, isSending: false }])) }),

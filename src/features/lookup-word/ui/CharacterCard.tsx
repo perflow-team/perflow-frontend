@@ -10,13 +10,6 @@ interface CharacterCardProps {
   episodeId: string
 }
 
-// Spec 3.1: modal overlay, identical on PC and mobile. Local UI state only
-// (open/closed + target word/context) lives in useAssistPanelStore; the
-// actual explanation is server state fetched through useEntityCard.
-//
-// Response shape: { title, tag, fields: [{label, value}], is_spoiler_filtered }.
-// tag is empty for plain words/phrases (not a character/place/event), so the
-// type badge only renders when there's something to label.
 function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
   const word = useAssistPanelStore((s) => s.characterCardScope === `${novelId}:${episodeId}` ? s.characterCardEntityId : null)
   const contextSentence = useAssistPanelStore((s) => s.characterCardContext)

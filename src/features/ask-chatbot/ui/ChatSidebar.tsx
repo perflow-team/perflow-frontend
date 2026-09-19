@@ -10,18 +10,26 @@ interface ChatSidebarProps {
   episodeId: string
 }
 
-// Spec 3.2: the "진행도 N% 기준 답변" badge stays pinned at the top at all
-// times — it's the trust signal that lets a reader ask questions without
-// fear of being spoiled. Input fixed at bottom, messages stack upward.
+const TEXTAREA_MIN_HEIGHT = 32
+const TEXTAREA_MAX_HEIGHT = 72
+
 function ChatSidebar({ novelId, episodeId }: ChatSidebarProps) {
   const progress = useReaderStore((s) => s.progress)
   const { messages, sendMessage, isSending } = useChat({ novelId, episodeId })
   const [input, setInput] = useState('')
   const listRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, isSending])
+
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${Math.min(Math.max(el.scrollHeight, TEXTAREA_MIN_HEIGHT), TEXTAREA_MAX_HEIGHT)}px`
+  }, [input])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,6 +86,7 @@ function ChatSidebar({ novelId, episodeId }: ChatSidebarProps) {
       <form onSubmit={handleSubmit} className="shrink-0 border-t border-neutral-200 p-3">
         <div className="flex items-end gap-2 rounded-xl bg-neutral-100 p-2">
           <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -88,7 +97,7 @@ function ChatSidebar({ novelId, episodeId }: ChatSidebarProps) {
             }}
             placeholder="궁금한 걸 물어보세요"
             rows={1}
-            className="max-h-24 flex-1 resize-none bg-transparent px-1.5 py-1 text-body-medium text-neutral-900 outline-none placeholder:text-neutral-400"
+            className="min-h-8 max-h-[4.5rem] flex-1 resize-none overflow-y-auto bg-transparent px-1.5 py-1.5 text-body-medium text-neutral-900 outline-none placeholder:text-neutral-400"
           />
           <button
             type="submit"

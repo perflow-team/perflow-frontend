@@ -1,14 +1,22 @@
 import axios from 'axios'
-import { useAuthStore } from '@/entities/user/model/useAuthStore'
 
-// Base URL for the Perflow backend (Supabase + OpenAI, per API Spec Cloud Native V4).
-// Override with VITE_API_BASE_URL for local backend development.
+type TokenGetter = () => string | null
+type UnauthorizedHandler = () => void
+
+let getToken: TokenGetter = () => null
+let onUnauthorized: UnauthorizedHandler = () => {}
+
+export function configureApiAuth(tokenGetter: TokenGetter, unauthorizedHandler: UnauthorizedHandler) {
+  getToken = tokenGetter
+  onUnauthorized = unauthorizedHandler
+}
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'https://perflow-backend.onrender.com',
 })
 
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken
+  const token = getToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -19,7 +27,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      useAuthStore.getState().logout()
+      onUnauthorized()
     }
     return Promise.reject(error)
   },

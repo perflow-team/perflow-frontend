@@ -1,17 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, BookOpen, ChevronRight, Heart, MessageCircle, Users } from 'lucide-react'
-import type { ComponentType } from 'react'
-import { useState } from 'react'
+import { ArrowRight, BookOpen, ChevronRight, Eye, Heart, Star } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '@/widgets/header/ui/Header'
-import { addBookmark, removeBookmark } from '@/features/bookmark-novel/api/bookmarkApi'
 import { fetchChapters } from '@/entities/chapter/api/chapterApi'
 import { fetchNovel } from '@/entities/novel/api/novelApi'
-import NovelTags from '@/entities/novel/ui/NovelTags'
+import { useToggleLike } from '@/entities/novel/lib/useToggleLike'
+import { formatViews } from '@/shared/lib/formatViews'
+import NovelCoverPlaceholder from '@/entities/novel/ui/NovelCoverPlaceholder'
+import PreparingOverlay from '@/entities/novel/ui/PreparingOverlay'
+import { isPlaceholderNovel } from '@/entities/novel/lib/isPlaceholderNovel'
 import Badge from '@/shared/ui/Badge'
 import Button from '@/shared/ui/Button'
 import Skeleton from '@/shared/ui/Skeleton'
 import SectionNotice from '@/shared/ui/SectionNotice'
+import { useDocumentTitle } from '@/shared/lib/useDocumentTitle'
 
 function NovelDetailPage() {
   const { novelId = '1' } = useParams()
@@ -27,41 +29,26 @@ function NovelDetailPage() {
 
   const firstChapter = chapters?.[0]
 
-  // No GET flag tells us the current bookmark state yet, so this starts
-  // false every visit. The API isn't live on the backend (404) — clicking
-  // shows a friendly notice instead of failing silently.
-  const [bookmarked, setBookmarked] = useState(false)
-  const [bookmarkPending, setBookmarkPending] = useState(false)
-  const [bookmarkNotice, setBookmarkNotice] = useState<string | null>(null)
+  const { liked, count: likesCount, toggle: handleLikeClick } = useToggleLike(Number(novelId), novel?.likes)
 
-  const handleBookmarkClick = async () => {
-    setBookmarkPending(true)
-    setBookmarkNotice(null)
-    try {
-      if (bookmarked) {
-        await removeBookmark(novelId)
-        setBookmarked(false)
-      } else {
-        await addBookmark(novelId)
-        setBookmarked(true)
-      }
-    } catch {
-      setBookmarkNotice('관심작 등록은 아직 준비 중이에요.')
-    } finally {
-      setBookmarkPending(false)
-    }
-  }
+  const genreTags = [...new Set((novel?.tags ?? []).filter((tag) => !tag.startsWith('#')))]
+  const subGenreTags = [...new Set((novel?.tags ?? []).filter((tag) => tag.startsWith('#')))]
+
+  useDocumentTitle(novel?.title ?? '작품 정보')
 
   return (
-    <div className="min-h-svh bg-white pt-16">
+    <div className="min-h-svh bg-white pt-14 md:pt-16">
       <Header />
 
       <section className="border-b border-neutral-200 bg-neutral-50">
         <div className="mx-auto flex max-w-[1168px] flex-col gap-6 px-4 py-8 sm:flex-row sm:gap-10 md:px-10 md:py-12">
-          <div className="mx-auto h-[300px] w-[230px] shrink-0 overflow-hidden rounded-lg bg-neutral-200 shadow-lg ring-1 ring-neutral-900/5 sm:mx-0">
-            {novel?.cover_image_url && (
+          <div className="relative mx-auto aspect-[23/30] w-[160px] shrink-0 overflow-hidden rounded-lg bg-neutral-200 shadow-lg ring-1 ring-neutral-900/5 sm:mx-0 sm:w-[230px]">
+            {novel?.cover_image_url ? (
               <img src={novel.cover_image_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              novel && <NovelCoverPlaceholder id={novel.id} title={novel.title} author={novel.author} />
             )}
+            {novel && isPlaceholderNovel(novel.id) && <PreparingOverlay />}
           </div>
 
           <div className="flex flex-col gap-3 text-center sm:text-left">
@@ -78,21 +65,42 @@ function NovelDetailPage() {
             )}
             {novel && (
               <>
-                <h1 className="text-headline-large text-neutral-900">{novel.title}</h1>
+                <h1 className="text-headline-small font-bold text-neutral-900 sm:text-headline-large">{novel.title}</h1>
                 <p className="text-title-small text-neutral-500">
                   {novel.author} 지음 · 총 {novel.total_chapters}화 연재
                 </p>
 
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-label-large text-neutral-500 sm:justify-start">
+                  <span className="inline-flex items-center gap-1">
+                    <Star size={16} className="text-primary-500" />
+                    {novel.rating > 0 ? novel.rating.toFixed(1) : '평가 전'}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Eye size={16} className="text-neutral-400" />
+                    조회 {formatViews(novel.views)}
+                  </span>
+                </div>
+
                 <p className="mt-1 max-w-2xl text-body-medium text-neutral-700">
                   {novel.description ?? '아직 작품 소개가 등록되지 않았어요.'}
                 </p>
-                <NovelTags tags={novel.tags} className="justify-center sm:justify-start" />
 
-                <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
-                  <FeatureChip icon={MessageCircle}>스포일러 없는 AI 챗봇</FeatureChip>
-                  <FeatureChip icon={Users}>인물 관계도</FeatureChip>
-                  <FeatureChip icon={BookOpen}>모르는 단어 설명</FeatureChip>
-                </div>
+                {genreTags.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 sm:justify-start">
+                    <span className="text-label-large text-neutral-400">장르</span>
+                    {genreTags.map((tag) => (
+                      <span key={tag} className="text-label-large font-medium text-primary-700">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+                {subGenreTags.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 sm:justify-start">
+                    <span className="text-label-large text-neutral-400">세부 장르</span>
+                    {subGenreTags.map((tag) => (
+                      <span key={tag} className="text-label-large font-medium text-neutral-600">{tag}</span>
+                    ))}
+                  </div>
+                )}
 
                 <div className="mt-4 flex flex-wrap justify-center gap-3 sm:justify-start">
                   {firstChapter && (
@@ -103,12 +111,11 @@ function NovelDetailPage() {
                       </Button>
                     </Link>
                   )}
-                  <Button variant="outline" onClick={handleBookmarkClick} disabled={bookmarkPending}>
-                    <Heart size={16} className={bookmarked ? 'fill-primary-600 text-primary-600' : ''} />
-                    {bookmarked ? '관심작 등록됨' : '관심작 등록'}
+                  <Button variant="outline" onClick={handleLikeClick}>
+                    <Heart size={16} className={liked ? 'fill-primary-600 text-primary-600' : ''} />
+                    {liked ? '좋아요 취소' : '좋아요'} {formatViews(likesCount)}
                   </Button>
                 </div>
-                {bookmarkNotice && <p className="text-label-small text-neutral-400">{bookmarkNotice}</p>}
               </>
             )}
           </div>
@@ -116,7 +123,7 @@ function NovelDetailPage() {
       </section>
 
       <section className="mx-auto max-w-[1168px] px-4 py-8 md:px-10 md:py-10">
-        <h2 className="mb-4 text-headline-small text-neutral-900">회차 목록</h2>
+        <h2 className="mb-4 text-title-large font-bold text-neutral-900 sm:text-headline-small">회차 목록</h2>
 
         {chaptersLoading && (
           <div className="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
@@ -155,15 +162,6 @@ function NovelDetailPage() {
         )}
       </section>
     </div>
-  )
-}
-
-function FeatureChip({ icon: Icon, children }: { icon: ComponentType<{ size?: number }>; children: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1.5 text-label-medium font-medium text-primary-700">
-      <Icon size={14} />
-      {children}
-    </span>
   )
 }
 

@@ -9,10 +9,6 @@ interface UseChatParams {
   episodeId: string
 }
 
-// POST /api/ai/chat/{novelId}/message returns a single JSON response (no
-// SSE/streaming in this API version), so this is a plain request/response
-// flow rather than an incremental stream. Thin wrapper around useChatStore
-// so the conversation survives the sidebar unmounting on tab switches.
 export function useChat({ novelId, episodeId }: UseChatParams) {
   const userId = useAuthStore((s) => s.user?.id ?? null)
   const key = conversationKey(novelId, userId)

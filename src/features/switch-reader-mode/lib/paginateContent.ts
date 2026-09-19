@@ -1,7 +1,5 @@
 import type { ContentBlock } from '@/entities/chapter/model/types'
 
-// Measure with the reader's actual font and width. Split oversized paragraphs
-// at grapheme boundaries so no text or source offsets are lost between pages.
 export function paginateContent(
   content: ContentBlock[],
   pageHeight: number,
@@ -45,7 +43,6 @@ export function paginateContent(
         finishPage()
         continue
       }
-      // Even a viewport shorter than one line must keep its text accessible.
       if (end === from) end = from + 1
       const text = block.text.slice(boundaries[from], boundaries[end])
       page.push({ ...block, text, start: block.start + boundaries[from], contextSentence: block.contextSentence ?? block.text })

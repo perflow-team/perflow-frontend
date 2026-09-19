@@ -1,0 +1,12 @@
+{
+  "name": "Perflow",
+  "short_name": "Perflow",
+  "description": "딱 당신이 읽은 만큼만, 이야기의 흐름을 타도록 도와주는 웹소설 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#121d18",
+  "icons": [
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

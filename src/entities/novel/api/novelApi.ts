@@ -8,6 +8,7 @@ export interface NovelSummary {
   cover_image_url: string | null
   views: number
   rating: number
+  likes: number
   is_new: boolean
   published_at: string | null
   genres: string[]
@@ -41,6 +42,12 @@ export const RANKING_LABELS: Record<RankingSort, string> = {
 export async function fetchRanking(sort: RankingSort, limit = 10, genre?: string): Promise<NovelSummary[]> {
   const { data } = await api.get<NovelSummary[]>('/api/novels/ranking', { params: { sort, limit, genre } })
   return data
+}
+
+export async function fetchNewNovels(genre?: string, limit?: number): Promise<NovelSummary[]> {
+  const novels = await fetchGenreNovels(genre)
+  const newNovels = novels.filter((novel) => novel.is_new)
+  return limit ? newNovels.slice(0, limit) : newNovels
 }
 
 export async function fetchGenres(): Promise<string[]> {

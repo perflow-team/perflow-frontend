@@ -2,6 +2,7 @@ import { ChevronDown, LogOut, UserRound } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/entities/user/model/useAuthStore'
+import UserAvatar from '@/entities/user/ui/UserAvatar'
 
 export default function UserProfileMenu() {
   const user = useAuthStore((s) => s.user)
@@ -46,7 +47,7 @@ export default function UserProfileMenu() {
         <div id="user-profile-menu" role="dialog" aria-label="유저 프로필"
           className="absolute right-0 top-12 w-[min(280px,calc(100vw-32px))] rounded-2xl border border-neutral-200 bg-white p-3 shadow-xl">
           <div className="mb-2 flex items-center gap-3 border-b border-neutral-100 px-2 pb-4 pt-2">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700"><UserRound size={20} /></span>
+            <UserAvatar nickname={user.nickname} />
             <div className="min-w-0">
               <p className="truncate text-title-small text-neutral-900">{user.nickname}</p>
               <p className="break-all text-label-small text-neutral-500">{user.email}</p>

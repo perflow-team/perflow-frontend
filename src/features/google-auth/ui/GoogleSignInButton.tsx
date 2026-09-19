@@ -22,10 +22,6 @@ declare global {
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
 const GSI_SCRIPT_SRC = 'https://accounts.google.com/gsi/client'
 
-// POST /api/auth/google needs a real Google ID token, which only the
-// Google Identity Services SDK can produce client-side. Without a Client ID
-// configured (VITE_GOOGLE_CLIENT_ID) this renders a disabled placeholder
-// instead of silently failing.
 function GoogleSignInButton() {
   const buttonRef = useRef<HTMLDivElement>(null)
   const setAuth = useAuthStore((s) => s.setAuth)

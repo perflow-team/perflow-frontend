@@ -9,9 +9,6 @@ interface UseReaderProgressParams {
   totalChars: number
 }
 
-// Watches the reader store's progress value (which updates on every scroll
-// frame / page turn for a smooth UI) and persists it to the server at most
-// once every 500ms, decoupling UI responsiveness from network calls.
 export function useReaderProgress({ novelId, episodeId, totalChars }: UseReaderProgressParams) {
   const progress = useReaderStore((s) => s.progress)
   const throttledSave = useMemo(() =>
@@ -22,7 +19,6 @@ export function useReaderProgress({ novelId, episodeId, totalChars }: UseReaderP
         currentCharOffset: Math.round(p * chars),
         progress: p,
       }).catch(() => {
-        // best-effort: progress will resync on the next successful save
       })
     }, 500), [novelId, episodeId])
 

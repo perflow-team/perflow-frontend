@@ -13,8 +13,6 @@ interface FetchEntityCardParams {
   currentCharOffset: number
 }
 
-// Read a precomputed card at the clicked sentence's UTF-16 cutoff.
-// The endpoint keeps its old path but no longer generates explanations on demand.
 export async function fetchEntityCard({
   novelId,
   word,

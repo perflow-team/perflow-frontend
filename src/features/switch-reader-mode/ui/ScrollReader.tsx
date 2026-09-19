@@ -12,7 +12,6 @@ interface ScrollReaderProps {
   onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
 }
 
-// Spec 2.2: progress = scrollTop / (scrollHeight - clientHeight)
 const ScrollReader = forwardRef<ReaderHandle, ScrollReaderProps>(({ content, entities, prefs, onEntityTrigger, scope }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const setProgress = useReaderStore((s) => s.setProgress)

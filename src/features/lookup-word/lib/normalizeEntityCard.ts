@@ -21,8 +21,6 @@ function text(value: unknown): string {
   return ''
 }
 
-// Validate at the API boundary: TypeScript cannot guarantee the shape of
-// generated JSON. Keep support for the older dictionary response contracts.
 export function normalizeEntityCard(response: unknown, requestedWord: string): EntityCardData {
   if (!isRecord(response)) throw new Error('Invalid dictionary response')
 

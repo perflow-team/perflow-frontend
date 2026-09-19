@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { ContentBlock, EntityMark } from '@/entities/chapter/model/types'
-import { useEntityTrigger } from '@/features/lookup-word/lib/useEntityTrigger'
+import { useEntityTrigger } from '@/entities/chapter/lib/useEntityTrigger'
 
 export interface ReaderPrefs {
   fontSizeRem: number
@@ -19,9 +19,6 @@ interface ReaderContentBlocksProps {
 function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
   const { getHandlers } = useEntityTrigger(onEntityTrigger)
 
-  // Spec 2.3: 인물명/고유명사 마킹 — the chapter API now sends entity spans
-  // ({word, start_offset, end_offset}) alongside the raw text, so only the
-  // words the backend actually flagged are look-up-able (not every word).
   const renderBlock = (block: ContentBlock) => {
     const blockEnd = block.start + block.text.length
     const marks = entities
@@ -47,7 +44,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
           tabIndex={0}
           aria-label={`${mark.word} 설명 보기`}
           data-lookup-word={mark.word}
-          className={`reader-lookup cursor-pointer select-none rounded-sm no-underline outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-400 ${prefs.nightMode ? 'hover:bg-primary-800' : 'hover:bg-primary-100'}`}
+          className={`cursor-pointer select-none rounded-sm no-underline outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-400 ${prefs.nightMode ? 'hover:bg-primary-800' : 'hover:bg-primary-100'}`}
         >
           {visibleText}
         </span>,

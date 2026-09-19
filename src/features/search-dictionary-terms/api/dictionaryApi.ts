@@ -13,9 +13,6 @@ interface FetchDictionaryTermsParams {
   query?: string
 }
 
-// GET /api/novels/{novelId}/dictionary/terms — server-side filtered to
-// entries that have appeared by current_chapter_number, for both browsing
-// and search, so nothing spoiler-adjacent is ever sent to the client.
 export async function fetchDictionaryTerms({
   novelId,
   currentChapterNumber,

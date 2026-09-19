@@ -5,10 +5,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { fetchNovels } from '@/entities/novel/api/novelApi'
 import { filterNovels } from '@/features/search-novels/lib/filterNovels'
 
-// Real search over the real /api/novels list (client-side filter — the
-// catalog is small enough that a dedicated search endpoint isn't needed
-// yet). Shares the ['novels'] query cache with Home/MyPage, so opening this
-// rarely fires a new request.
 function SearchBar() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')

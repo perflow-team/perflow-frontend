@@ -14,6 +14,7 @@ import { parseChapterContent } from '@/entities/chapter/lib/parseChapterContent'
 import { fetchChapterContent, fetchChapters } from '@/entities/chapter/api/chapterApi'
 import Skeleton from '@/shared/ui/Skeleton'
 import { useLookupTargets } from '@/features/lookup-word/model/useLookupTargets'
+import { useDocumentTitle } from '@/shared/lib/useDocumentTitle'
 
 const ZOOM_STEPS = [0.85, 1, 1.15, 1.3, 1.45, 1.6]
 const LINE_SPACINGS = [1.8, 2.2, 2.6]
@@ -70,6 +71,8 @@ function ReaderPage() {
   }
 
   const title = chapter?.title ?? `${episodeId}화`
+
+  useDocumentTitle(title)
 
   return (
     <>

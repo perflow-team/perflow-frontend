@@ -1,6 +1,3 @@
-// Ambient two-layer wave, echoing the wordmark's flow motif. Each path is a
-// single period (1440 wide) built from evenly-dividing sub-waves, so tiling
-// the same path at a +1440 offset and drifting by -50% loops seamlessly.
 function WaveBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-40 overflow-hidden">

@@ -43,8 +43,6 @@ interface ReaderShellProps {
   onNextEpisode: () => void
 }
 
-// Spec 2.1: Header (뒤로가기 · 회차 타이틀 · 설정(Aa) · 챗봇토글) + 본문/사이드바 좌우 분할
-// + Footer (진행도 바 · 이전/다음 회차). 설정과 챗봇토글은 둘 다 항상 보이는 별도 아이콘.
 function ReaderShell({
   novelId,
   episodeId,
@@ -87,14 +85,14 @@ function ReaderShell({
     { icon: <Type size={16} />, label: `폰트 (${fontFamily === 'sans' ? '고딕' : '명조'})`, onClick: onToggleFont },
     {
       icon: nightMode ? <Sun size={16} /> : <Moon size={16} />,
-      label: '야간 모드',
+      label: nightMode ? '라이트 모드로 전환' : '다크모드로 전환',
       onClick: onToggleNightMode,
     },
   ]
 
   return (
-    <div className={`flex h-svh flex-col ${nightMode ? 'bg-neutral-950' : 'bg-white'}`}>
-      <header className="relative z-30 flex h-14 shrink-0 items-center justify-between bg-neutral-900 px-4 text-white">
+    <div className={`flex h-svh flex-col ${nightMode ? 'bg-neutral-900' : 'bg-white'}`}>
+      <header className="relative z-50 flex h-14 shrink-0 items-center justify-between bg-neutral-900 px-4 text-white">
         <button
           type="button"
           onClick={() => navigate(`/novel/${novelId}`)}
@@ -104,7 +102,7 @@ function ReaderShell({
           <ArrowLeft size={20} />
         </button>
 
-        <h1 className="text-title-medium font-medium">{title}</h1>
+        <h1 className="min-w-0 max-w-[55%] flex-1 truncate text-center text-title-medium font-medium sm:max-w-md">{title}</h1>
 
         <div className="flex items-center gap-1">
           <div className="relative" ref={settingsRef}>
@@ -130,28 +128,32 @@ function ReaderShell({
         </div>
       </header>
 
-      <div className={`flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-3 py-1.5 text-center text-label-small ${nightMode ? 'bg-neutral-900 text-neutral-300' : 'bg-neutral-50 text-neutral-500'}`}>
+      <div className={`flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-3 py-1.5 text-center text-label-small ${nightMode ? 'bg-neutral-800 text-neutral-300' : 'bg-neutral-50 text-neutral-500'}`}>
         <span>밑줄 단어에 마우스를 올리면 강조돼요 · 클릭해서 설명 보기</span>
         {lookupStatus === 'preparing' && <span role="status">설명할 단어를 준비하고 있어요…</span>}
         {(lookupStatus === 'failed' || lookupStatus === 'not_prepared') && <span role="status">아직 준비되지 않은 설명이 있어요.</span>}
       </div>
       <div className="relative flex flex-1 overflow-hidden">
-        <button
-          type="button"
-          onClick={onPrevPage}
-          aria-label="이전 페이지"
-          className={`absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full ${nightMode ? 'bg-white/5 text-neutral-400 hover:bg-white/10' : 'bg-neutral-900/5 text-neutral-500 hover:bg-neutral-900/10'}`}
-        >
-          <ChevronLeft size={22} />
-        </button>
-        <button
-          type="button"
-          onClick={onNextPage}
-          aria-label="다음 페이지"
-          className={`absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full ${nightMode ? 'bg-white/5 text-neutral-400 hover:bg-white/10' : 'bg-neutral-900/5 text-neutral-500 hover:bg-neutral-900/10'}`}
-        >
-          <ChevronRight size={22} />
-        </button>
+        {mode === 'paginated' && (
+          <>
+            <button
+              type="button"
+              onClick={onPrevPage}
+              aria-label="이전 페이지"
+              className={`absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full ${nightMode ? 'bg-white/5 text-neutral-400 hover:bg-white/10' : 'bg-neutral-900/5 text-neutral-500 hover:bg-neutral-900/10'}`}
+            >
+              <ChevronLeft size={22} />
+            </button>
+            <button
+              type="button"
+              onClick={onNextPage}
+              aria-label="다음 페이지"
+              className={`absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full ${nightMode ? 'bg-white/5 text-neutral-400 hover:bg-white/10' : 'bg-neutral-900/5 text-neutral-500 hover:bg-neutral-900/10'}`}
+            >
+              <ChevronRight size={22} />
+            </button>
+          </>
+        )}
 
         <main className="min-w-0 flex-1">{children}</main>
 
