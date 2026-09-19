@@ -5,15 +5,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import Header from '@/widgets/header/ui/Header'
 import NovelCard from '@/entities/novel/ui/NovelCard'
 import NovelCoverCollage from '@/entities/novel/ui/NovelCoverCollage'
-import MockNovelCard from '@/entities/novel/ui/MockNovelCard'
-import { fetchNovels } from '@/entities/novel/api/novelApi'
-import { GENRES, MOCK_NOVELS } from '@/shared/mocks/mockCatalog'
+import RankingSection from '@/entities/novel/ui/RankingSection'
+import { fetchGenres, fetchNovels } from '@/entities/novel/api/novelApi'
 import Skeleton from '@/shared/ui/Skeleton'
 import WaveBackdrop from '@/shared/ui/WaveBackdrop'
-import ScrollCarousel from '@/shared/ui/ScrollCarousel'
 import { useInView } from '@/shared/lib/useInView'
-
-const TOP_RANKED = [...MOCK_NOVELS].sort((a, b) => b.views - a.views).slice(0, 10)
 
 function NovelCardSkeleton() {
   return (
@@ -51,6 +47,7 @@ function HomePage() {
     queryKey: ['novels'],
     queryFn: fetchNovels,
   })
+  const { data: genres = [] } = useQuery({ queryKey: ['genres'], queryFn: fetchGenres })
 
   const scrollToCatalog = () => catalogRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
@@ -76,7 +73,7 @@ function HomePage() {
               당신만의 이야기를 만나보세요
             </h1>
             <p className="max-w-md text-body-large text-primary-200/90">
-              매일 업데이트되는 웹소설을 가장 편안한 방식으로 읽어보세요.
+              익숙한 고전도 처음 만나는 이야기처럼. 취향에 맞는 작품에 편안하게 몰입해 보세요.
             </p>
             <div className="mt-2 flex flex-wrap gap-3">
               <button
@@ -108,7 +105,7 @@ function HomePage() {
 
       <section className="mx-auto max-w-[1168px] px-4 pt-8 md:px-10">
         <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-2">
-          {GENRES.map((genre) => (
+          {genres.map((genre) => (
             <Link
               key={genre}
               to={`/genre?g=${encodeURIComponent(genre)}`}
@@ -120,21 +117,9 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1168px] px-4 py-8 md:px-10 md:py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-headline-small text-neutral-900">인기 작품 미리보기</h2>
-          <Link to="/ranking" className="text-label-large text-neutral-500 hover:text-primary-600">
-            전체 보기
-          </Link>
-        </div>
-
-        <p className="mb-4 text-body-small text-neutral-500">랭킹을 준비 중이에요. 아래 작품은 읽을 수 없는 예시예요.</p>
-        <ScrollCarousel>
-          {TOP_RANKED.map((novel, i) => (
-            <MockNovelCard key={novel.id} novel={novel} rank={i + 1} />
-          ))}
-        </ScrollCarousel>
-      </section>
+      <RankingSection sort="views" />
+      <RankingSection sort="rating" />
+      <RankingSection sort="new" />
 
       <section ref={catalogRef} id="catalog" className="mx-auto max-w-[1168px] px-4 py-8 md:px-10 md:py-10">
         <div className="mb-8 flex items-center justify-between">
@@ -156,6 +141,9 @@ function HomePage() {
                     title={novel.title}
                     author={novel.author}
                     coverImageUrl={novel.cover_image_url}
+                    tags={novel.tags}
+                    views={novel.views}
+                    rating={novel.rating}
                   />
                 </RevealCard>
               ))}

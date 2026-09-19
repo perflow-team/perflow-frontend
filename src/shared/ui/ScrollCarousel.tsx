@@ -52,7 +52,7 @@ function ScrollCarousel({ children, buttonOffset = 150 }: ScrollCarouselProps) {
           aria-label="이전"
           onClick={() => page(-1)}
           style={{ top: buttonOffset }}
-          className="absolute left-0 z-10 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-neutral-700 shadow-md ring-1 ring-neutral-200 transition hover:bg-neutral-50"
+          className="absolute left-0 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white text-neutral-700 shadow-md ring-1 ring-neutral-200 transition hover:bg-neutral-50 sm:-translate-x-1/2"
         >
           <ChevronLeft size={18} />
         </button>
@@ -63,7 +63,7 @@ function ScrollCarousel({ children, buttonOffset = 150 }: ScrollCarouselProps) {
           aria-label="다음"
           onClick={() => page(1)}
           style={{ top: buttonOffset }}
-          className="absolute right-0 z-10 flex h-9 w-9 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-white text-neutral-700 shadow-md ring-1 ring-neutral-200 transition hover:bg-neutral-50"
+          className="absolute right-0 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white text-neutral-700 shadow-md ring-1 ring-neutral-200 transition hover:bg-neutral-50 sm:translate-x-1/2"
         >
           <ChevronRight size={18} />
         </button>

@@ -62,6 +62,7 @@ try{
   const background=await target.evaluate(el=>getComputedStyle(el).backgroundColor)
   const calls=lookups.length
   await target.hover();await page.waitForTimeout(1200)
+  assert.equal(await target.evaluate(el=>getComputedStyle(el).textDecorationLine),'none',`${term}: no underline`)
   assert.notEqual(await target.evaluate(el=>getComputedStyle(el).backgroundColor),background,`${term}: hover must highlight`)
   assert.equal(lookups.length,calls,`${term}: hover must not request a definition`)
   assert.equal(await page.getByRole('dialog').count(),0,`${term}: hover must not open a card`)

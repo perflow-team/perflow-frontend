@@ -7,6 +7,7 @@ import Header from '@/widgets/header/ui/Header'
 import { addBookmark, removeBookmark } from '@/features/bookmark-novel/api/bookmarkApi'
 import { fetchChapters } from '@/entities/chapter/api/chapterApi'
 import { fetchNovel } from '@/entities/novel/api/novelApi'
+import NovelTags from '@/entities/novel/ui/NovelTags'
 import Badge from '@/shared/ui/Badge'
 import Button from '@/shared/ui/Button'
 import Skeleton from '@/shared/ui/Skeleton'
@@ -85,6 +86,7 @@ function NovelDetailPage() {
                 <p className="mt-1 max-w-2xl text-body-medium text-neutral-700">
                   {novel.description ?? '아직 작품 소개가 등록되지 않았어요.'}
                 </p>
+                <NovelTags tags={novel.tags} className="justify-center sm:justify-start" />
 
                 <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
                   <FeatureChip icon={MessageCircle}>스포일러 없는 AI 챗봇</FeatureChip>

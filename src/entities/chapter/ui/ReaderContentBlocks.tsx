@@ -47,7 +47,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
           tabIndex={0}
           aria-label={`${mark.word} 설명 보기`}
           data-lookup-word={mark.word}
-          className={`reader-lookup cursor-pointer select-none rounded-sm underline decoration-dotted decoration-primary-400/60 underline-offset-4 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-400 ${prefs.nightMode ? 'hover:bg-primary-800 hover:text-white' : 'hover:bg-primary-100 hover:text-primary-900'}`}
+          className={`reader-lookup cursor-pointer select-none rounded-sm no-underline outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary-400 ${prefs.nightMode ? 'hover:bg-primary-800' : 'hover:bg-primary-100'}`}
         >
           {visibleText}
         </span>,
