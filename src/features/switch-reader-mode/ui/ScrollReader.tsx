@@ -10,7 +10,7 @@ interface ScrollReaderProps {
   content: ContentBlock[]
   entities: EntityMark[]
   prefs: ReaderPrefs
-  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
+  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number, selectionCharOffset?: number) => void
   onContinue?: () => Promise<boolean>
   nextTitle?: string
   isLastChapter?: boolean

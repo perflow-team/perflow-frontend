@@ -15,7 +15,7 @@ interface ReaderContentBlocksProps {
   content: ContentBlock[]
   entities: EntityMark[]
   prefs: ReaderPrefs
-  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
+  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number, selectionCharOffset?: number) => void
 }
 
 function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
@@ -67,16 +67,16 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
       parts.push(
         <span
           key={`e-${i}`}
-          {...getHandlers(mark.word, block.contextSentence ?? block.text, mark.lookup_offset ?? mark.end_offset)}
+          {...getHandlers(mark.word, block.contextSentence ?? block.text, mark.lookup_offset ?? mark.end_offset, mark.start_offset)}
           onPointerEnter={(event) => {
             if (event.pointerType !== 'mouse') return
             const target = { word: mark.word, contextSentence: block.contextSentence ?? block.text,
-              currentCharOffset: mark.lookup_offset ?? mark.end_offset, rect: event.currentTarget.getBoundingClientRect() }
+              currentCharOffset: mark.lookup_offset ?? mark.end_offset, selectionCharOffset: mark.start_offset, rect: event.currentTarget.getBoundingClientRect() }
             showPreview(target)
           }}
           onPointerLeave={leavePreview}
           onFocus={(event) => showPreview({ word: mark.word, contextSentence: block.contextSentence ?? block.text,
-            currentCharOffset: mark.lookup_offset ?? mark.end_offset, rect: event.currentTarget.getBoundingClientRect() })}
+            currentCharOffset: mark.lookup_offset ?? mark.end_offset, selectionCharOffset: mark.start_offset, rect: event.currentTarget.getBoundingClientRect() })}
           onBlur={leavePreview}
           aria-describedby={preview?.word === mark.word ? 'reader-word-preview' : undefined}
           role="button"

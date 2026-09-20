@@ -14,14 +14,15 @@ function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
   const word = useAssistPanelStore((s) => s.characterCardScope === `${novelId}:${episodeId}` ? s.characterCardEntityId : null)
   const contextSentence = useAssistPanelStore((s) => s.characterCardContext)
   const currentCharOffset = useAssistPanelStore((s) => s.characterCardOffset)
+  const selectionCharOffset = useAssistPanelStore((s) => s.characterCardSelectionOffset)
   const closeCharacterCard = useAssistPanelStore((s) => s.closeCharacterCard)
-  const { data, isLoading, isError } = useEntityCard({ novelId, episodeId, word, contextSentence, currentCharOffset })
+  const { data, isLoading, isError, refetch } = useEntityCard({ novelId, episodeId, word, contextSentence, currentCharOffset, selectionCharOffset })
 
   if (!word) return null
 
   return (
     <Modal onClose={closeCharacterCard} widthClassName="max-w-sm">
-      <div className="p-5">
+      <div className="max-h-[85svh] overflow-y-auto p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="text-title-medium font-semibold text-neutral-900">{data?.title ?? word}</span>
@@ -45,7 +46,7 @@ function CharacterCard({ novelId, episodeId }: CharacterCardProps) {
             <Skeleton className="h-3 w-3/4" />
           </div>
         )}
-        {isError && <p className="mt-3 text-body-small text-neutral-500">설명을 가져오지 못했어요.</p>}
+        {isError && <div className="mt-3 text-body-small text-neutral-500"><p>설명을 가져오지 못했어요.</p><button type="button" onClick={() => void refetch()} className="mt-2 text-primary-600">다시 시도</button></div>}
 
         {data && (
           <>

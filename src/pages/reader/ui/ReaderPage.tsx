@@ -35,7 +35,7 @@ function ReaderPage() {
 
   const mode = useReaderStore((s) => s.mode)
   const openCharacterCard = useAssistPanelStore((s) => s.openCharacterCard)
-  const openLookup = useCallback((word: string, context: string, offset: number) => openCharacterCard(word, context, `${novelId}:${episodeId}`, offset), [openCharacterCard, novelId, episodeId])
+  const openLookup = useCallback((word: string, context: string, offset: number, selectionOffset?: number) => openCharacterCard(word, context, `${novelId}:${episodeId}`, offset, selectionOffset), [openCharacterCard, novelId, episodeId])
 
   const [zoomIndex, setZoomIndex] = useState(1)
   const [lineSpacingIndex, setLineSpacingIndex] = useState(0)

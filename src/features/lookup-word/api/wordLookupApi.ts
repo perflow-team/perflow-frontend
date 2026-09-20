@@ -11,6 +11,7 @@ interface FetchEntityCardParams {
   currentChapterNumber: number
   progress: number // internal 0~1 scale
   currentCharOffset: number
+  selectionCharOffset?: number
 }
 
 export async function fetchEntityCard({
@@ -20,11 +21,13 @@ export async function fetchEntityCard({
   currentChapterNumber,
   progress,
   currentCharOffset,
+  selectionCharOffset,
 }: FetchEntityCardParams): Promise<EntityCardData> {
   const { data } = await api.post<unknown>(`/api/ai/novels/${novelId}/dictionary`, {
     word,
     current_char_offset: currentCharOffset,
-    entity_type: 'CHARACTER',
+    selection_char_offset: selectionCharOffset,
+    card_version: 'reader-card-v1',
     context_sentence: contextSentence,
     current_chapter_number: currentChapterNumber,
     progress_percentage: progress, // 0~1, unified across all endpoints per updated spec

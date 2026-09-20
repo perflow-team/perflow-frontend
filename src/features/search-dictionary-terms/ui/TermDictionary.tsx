@@ -72,15 +72,19 @@ function DictionaryEntry({ name, type, novelId, episodeId, currentCharOffset }: 
   name: string; type: string; novelId: string; episodeId: string; currentCharOffset: number
 }) {
   const [expanded, setExpanded] = useState(false)
+  const [openedOffset, setOpenedOffset] = useState(currentCharOffset)
   const TypeIcon = TYPE_ICONS[type] ?? BookOpen
   const { data, isPending, isError, refetch } = useEntityCard({ novelId, episodeId,
-    word: expanded ? name : null, contextSentence: name, currentCharOffset })
+    word: expanded ? name : null, contextSentence: name, currentCharOffset: Math.min(openedOffset, currentCharOffset) })
   return <div className="rounded-lg border border-transparent hover:border-neutral-100">
-    <button type="button" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}
+    <button type="button" aria-expanded={expanded} onClick={() => {
+      if (!expanded) setOpenedOffset(currentCharOffset)
+      setExpanded(value => !value)
+    }}
       className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2.5 text-left hover:bg-neutral-100">
       <TypeIcon size={14} className="shrink-0 text-primary-600" />
-      <span className="text-body-medium font-medium text-neutral-900">{name}</span>
-      <span className="ml-auto text-label-small text-neutral-400">{TYPE_LABELS[type] ?? type}</span>
+      <span className="text-body-medium font-medium text-neutral-900">{expanded && data ? data.title : name}</span>
+      <span className="ml-auto text-label-small text-neutral-400">{expanded && data ? data.tag : TYPE_LABELS[type] ?? type}</span>
       <ChevronDown size={14} className={`shrink-0 text-neutral-400 ${expanded ? 'rotate-180' : ''}`} />
     </button>
     {expanded && <div className="space-y-2 px-3 pb-3 text-body-small text-neutral-700">

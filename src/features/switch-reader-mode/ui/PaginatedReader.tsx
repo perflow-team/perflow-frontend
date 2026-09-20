@@ -10,7 +10,7 @@ interface PaginatedReaderProps {
   content: ContentBlock[]
   entities: EntityMark[]
   prefs: ReaderPrefs
-  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number) => void
+  onEntityTrigger: (word: string, contextSentence: string, lookupOffset: number, selectionCharOffset?: number) => void
 }
 
 const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(

@@ -8,13 +8,14 @@ interface UseEntityCardParams {
   word: string | null
   contextSentence: string | null
   currentCharOffset: number
+  selectionCharOffset?: number
 }
 
-export function useEntityCard({ novelId, episodeId, word, contextSentence, currentCharOffset }: UseEntityCardParams) {
+export function useEntityCard({ novelId, episodeId, word, contextSentence, currentCharOffset, selectionCharOffset }: UseEntityCardParams) {
   const progress = useReaderStore((s) => s.progress)
 
   return useQuery({
-    queryKey: ['entity', novelId, episodeId, word, currentCharOffset],
+    queryKey: ['entity', 'reader-card-v1', novelId, episodeId, word, currentCharOffset, selectionCharOffset],
     queryFn: () =>
       fetchEntityCard({
         novelId,
@@ -23,6 +24,7 @@ export function useEntityCard({ novelId, episodeId, word, contextSentence, curre
         currentChapterNumber: Number(episodeId),
         progress,
         currentCharOffset,
+        selectionCharOffset,
       }),
     enabled: word != null && contextSentence != null,
     staleTime: 5 * 60_000,
