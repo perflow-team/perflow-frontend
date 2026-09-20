@@ -41,6 +41,8 @@ interface ReaderShellProps {
   onNextPage: () => void
   onPrevEpisode: () => void
   onNextEpisode: () => void
+  hasPreviousEpisode: boolean
+  hasNextEpisode: boolean
 }
 
 function ReaderShell({
@@ -61,6 +63,8 @@ function ReaderShell({
   onNextPage,
   onPrevEpisode,
   onNextEpisode,
+  hasPreviousEpisode,
+  hasNextEpisode,
 }: ReaderShellProps) {
   const navigate = useNavigate()
   const progress = useReaderStore((s) => s.progress)
@@ -165,11 +169,11 @@ function ReaderShell({
           <div className="h-full bg-primary-600 transition-all duration-300" style={{ width: `${progress * 100}%` }} />
         </div>
         <div className="flex items-center justify-between px-4 py-2">
-          <Button variant="ghost" size="sm" onClick={onPrevEpisode}>
+          <Button variant="ghost" size="sm" onClick={onPrevEpisode} disabled={!hasPreviousEpisode}>
             이전 회차
           </Button>
           <span className="text-label-medium text-neutral-500">{Math.round(progress * 100)}%</span>
-          <Button variant="ghost" size="sm" onClick={onNextEpisode}>
+          <Button variant="ghost" size="sm" onClick={onNextEpisode} disabled={!hasNextEpisode}>
             다음 회차
           </Button>
         </div>

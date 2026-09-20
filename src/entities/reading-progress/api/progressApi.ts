@@ -29,5 +29,5 @@ export async function updateProgress({
     current_chapter_number: currentChapterNumber,
     current_char_offset: currentCharOffset,
     progress_percentage: progress,
-  })
+  }, { timeout: 10_000 })
 }

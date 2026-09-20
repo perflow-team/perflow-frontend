@@ -4,6 +4,7 @@ export function throttle<Args extends unknown[]>(fn: (...args: Args) => void, wa
   let pendingArgs: Args | null = null
 
   const invoke = (args: Args) => {
+    pendingArgs = null
     lastCall = Date.now()
     fn(...args)
   }
@@ -31,6 +32,12 @@ export function throttle<Args extends unknown[]>(fn: (...args: Args) => void, wa
     if (timeout) clearTimeout(timeout)
     timeout = null
     pendingArgs = null
+  }
+
+  throttled.flush = () => {
+    if (timeout) clearTimeout(timeout)
+    timeout = null
+    if (pendingArgs) invoke(pendingArgs)
   }
 
   return throttled

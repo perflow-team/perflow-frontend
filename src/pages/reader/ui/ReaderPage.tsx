@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import CharacterCard from '@/features/lookup-word/ui/CharacterCard'
 import ResumeSummaryModal from '@/features/resume-reading/ui/ResumeSummaryModal'
@@ -22,7 +22,16 @@ const LINE_SPACINGS = [1.8, 2.2, 2.6]
 function ReaderPage() {
   const { novelId = '1', episodeId = '1' } = useParams()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const readerRef = useRef<ReaderHandle>(null)
+  const scope = `${novelId}:${episodeId}`
+  const activeScope = useRef(scope)
+  const transitionLock = useRef<{ scope: string } | null>(null)
+  const [transition, setTransition] = useState({ scope: '', pending: false, error: '' })
+  useEffect(() => {
+    activeScope.current = scope
+    return () => { activeScope.current = ''; transitionLock.current = null }
+  }, [scope])
 
   const mode = useReaderStore((s) => s.mode)
   const openCharacterCard = useAssistPanelStore((s) => s.openCharacterCard)
@@ -54,13 +63,49 @@ function ReaderPage() {
 
   useReaderProgress({ novelId, episodeId, totalChars })
 
+  const sortedChapters = useMemo(() => [...(chapters ?? [])].sort((a, b) => a.chapter_number - b.chapter_number), [chapters])
+  const currentIndex = sortedChapters.findIndex((c) => c.chapter_number === Number(episodeId))
+  const nextChapter = currentIndex >= 0 ? sortedChapters[currentIndex + 1] : undefined
+  const nextNumber = nextChapter?.chapter_number
+
+  useEffect(() => {
+    if (!chapter || nextNumber === undefined) return
+    void queryClient.prefetchQuery({
+      queryKey: ['chapter-content', novelId, String(nextNumber)],
+      queryFn: () => fetchChapterContent(novelId, nextNumber),
+      staleTime: 60_000,
+    })
+  }, [chapter, novelId, nextNumber, queryClient])
+
+  const continueReading = useCallback(async () => {
+    if (nextNumber === undefined || transitionLock.current?.scope === scope) return false
+    const request = { scope }
+    transitionLock.current = request
+    setTransition({ scope, pending: true, error: '' })
+    try {
+      await queryClient.fetchQuery({
+        queryKey: ['chapter-content', novelId, String(nextNumber)],
+        queryFn: () => fetchChapterContent(novelId, nextNumber),
+        staleTime: 60_000,
+        retry: false,
+      })
+      if (activeScope.current !== scope || transitionLock.current !== request) return false
+      navigate(`/novel/${novelId}/read/${nextNumber}`)
+      return true
+    } catch {
+      if (activeScope.current === scope && transitionLock.current === request) {
+        setTransition({ scope, pending: false, error: '다음 화를 불러오지 못했어요. 다시 스크롤하거나 다음 화를 눌러 주세요.' })
+        transitionLock.current = null
+      }
+      return false
+    }
+  }, [navigate, nextNumber, novelId, queryClient, scope])
+
   const goToEpisode = (delta: number) => {
-    if (!chapters || chapters.length === 0) return
-    const sorted = [...chapters].sort((a, b) => a.chapter_number - b.chapter_number)
-    const currentIndex = sorted.findIndex((c) => c.chapter_number === Number(episodeId))
+    if (currentIndex < 0) return
     const nextIndex = currentIndex + delta
-    if (nextIndex < 0 || nextIndex >= sorted.length) return
-    navigate(`/novel/${novelId}/read/${sorted[nextIndex].chapter_number}`)
+    if (nextIndex < 0 || nextIndex >= sortedChapters.length) return
+    navigate(`/novel/${novelId}/read/${sortedChapters[nextIndex].chapter_number}`)
   }
 
   const prefs = {
@@ -93,6 +138,8 @@ function ReaderPage() {
         onNextPage={() => readerRef.current?.pageForward()}
         onPrevEpisode={() => goToEpisode(-1)}
         onNextEpisode={() => goToEpisode(1)}
+        hasPreviousEpisode={currentIndex > 0}
+        hasNextEpisode={!!nextChapter}
       >
         {chapterLoading && (
           <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-6 py-10 lg:px-16">
@@ -119,6 +166,11 @@ function ReaderPage() {
               prefs={prefs}
               scope={`${novelId}:${episodeId}`}
               onEntityTrigger={openLookup}
+              onContinue={nextChapter ? continueReading : undefined}
+              nextTitle={nextChapter?.title ?? `${nextNumber}화`}
+              isLastChapter={currentIndex >= 0 && !nextChapter}
+              continuing={transition.scope === scope && transition.pending}
+              continuationError={transition.scope === scope ? transition.error : ''}
             />
           ) : (
             <PaginatedReader

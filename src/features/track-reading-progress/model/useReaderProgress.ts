@@ -1,7 +1,12 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { updateProgress } from '@/entities/reading-progress/api/progressApi'
 import { throttle } from '@/shared/lib/throttle'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
+import { useAuthStore } from '@/entities/user/model/useAuthStore'
+
+// Finish the previous episode's save before saving the next episode, even on a
+// slow connection. The server stores only the most recent position per novel.
+let pendingSave = Promise.resolve()
 
 interface UseReaderProgressParams {
   novelId: string
@@ -10,22 +15,28 @@ interface UseReaderProgressParams {
 }
 
 export function useReaderProgress({ novelId, episodeId, totalChars }: UseReaderProgressParams) {
-  const progress = useReaderStore((s) => s.progress)
-  const throttledSave = useMemo(() =>
-    throttle((p: number, chars: number) => {
-      updateProgress({
-        novelId,
-        currentChapterNumber: Number(episodeId),
-        currentCharOffset: Math.round(p * chars),
-        progress: p,
-      }).catch(() => {
-      })
-    }, 500), [novelId, episodeId])
-
-  useEffect(() => () => throttledSave.cancel(), [throttledSave])
-
+  const userId = useAuthStore((s) => s.user?.id)
   useEffect(() => {
-    if (totalChars <= 0) return
-    throttledSave(progress, totalChars)
-  }, [progress, totalChars, throttledSave])
+    if (totalChars <= 0 || userId === undefined) return
+    const scope = `${novelId}:${episodeId}`
+    const save = throttle((progress: number, offset: number) => {
+      pendingSave = pendingSave.then(async () => {
+        if (useAuthStore.getState().user?.id !== userId) return
+        await updateProgress({ novelId, currentChapterNumber: Number(episodeId),
+          currentCharOffset: Math.min(offset, totalChars), progress })
+      }).catch(() => {})
+    }, 500)
+    let previousProgress = -1
+    let previousOffset = -1
+    const track = () => {
+      const state = useReaderStore.getState()
+      if (state.cutoff.scope !== scope || (state.progress === previousProgress && state.cutoff.offset === previousOffset)) return
+      previousProgress = state.progress
+      previousOffset = state.cutoff.offset
+      save(state.progress, state.cutoff.offset)
+    }
+    track()
+    const unsubscribe = useReaderStore.subscribe(track)
+    return () => { unsubscribe(); save.flush(); save.cancel() }
+  }, [novelId, episodeId, totalChars, userId])
 }
