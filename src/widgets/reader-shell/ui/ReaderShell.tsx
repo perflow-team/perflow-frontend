@@ -75,6 +75,11 @@ function ReaderShell({
 
   const [settingsOpen, setSettingsOpen] = useState(false)
   const settingsRef = useRef<HTMLDivElement>(null)
+  const assistButtonRef = useRef<HTMLButtonElement>(null)
+  const closeAssistPanel = () => {
+    setActivePanel('closed')
+    requestAnimationFrame(() => assistButtonRef.current?.focus())
+  }
 
   const settingsItems: ActionSheetItem[] = [
     { icon: <Maximize2 size={16} />, label: '확대', onClick: onZoomIn },
@@ -121,14 +126,6 @@ function ReaderShell({
             <ActionSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} items={settingsItems} />
           </div>
 
-          <button
-            type="button"
-            onClick={() => setActivePanel(activePanel === 'closed' ? 'chat' : 'closed')}
-            aria-label="챗봇 토글"
-            className={`rounded-full p-2 hover:bg-neutral-800 ${activePanel !== 'closed' ? 'bg-neutral-800' : ''}`}
-          >
-            <MessageCircle size={20} />
-          </button>
         </div>
       </header>
 
@@ -159,9 +156,27 @@ function ReaderShell({
           </>
         )}
 
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="relative min-w-0 flex-1">
+          {children}
+          <div className={`absolute bottom-5 right-5 z-20 lg:bottom-8 lg:right-[max(1.5rem,calc((100%-42rem)/2-6rem))] ${activePanel !== 'closed' ? 'hidden' : ''}`}>
+            <button
+              ref={assistButtonRef}
+              type="button"
+              onClick={() => setActivePanel('chat')}
+              aria-label="독서 도우미 열기"
+              aria-controls="reader-assist-panel"
+              aria-expanded={activePanel !== 'closed'}
+              title="챗봇 · 키워드 · 관계도"
+              className="group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[#7c80ff] text-white shadow-[0_4px_16px_rgba(60,60,130,0.25)] outline-none transition-[background-color,transform,box-shadow] hover:bg-[#686df0] hover:shadow-[0_6px_22px_rgba(60,60,130,0.32)] focus-visible:ring-4 focus-visible:ring-[#7c80ff]/40 focus-visible:ring-offset-4 active:scale-95 motion-reduce:transition-none lg:h-[72px] lg:w-[72px]"
+            >
+              <span aria-hidden="true" className="pointer-events-none absolute -right-3 -top-10 flex h-12 w-12 items-center justify-center rounded-full rounded-bl-lg border-[5px] border-white bg-neutral-100 text-[27px] shadow-[0_2px_12px_rgba(0,0,0,0.14)] lg:-top-12 lg:h-14 lg:w-14 lg:text-[32px]">👩🏻‍💻</span>
+              <MessageCircle aria-hidden="true" className="h-7 w-7 lg:h-9 lg:w-9" strokeWidth={2} />
+              <span aria-hidden="true" className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-lg bg-neutral-900 px-3 py-2 text-label-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">챗봇 · 키워드 · 관계도</span>
+            </button>
+          </div>
+        </main>
 
-        <AssistSidebar novelId={novelId} episodeId={episodeId} />
+        <AssistSidebar novelId={novelId} episodeId={episodeId} onClose={closeAssistPanel} />
       </div>
 
       <footer className="shrink-0 border-t border-neutral-200">

@@ -33,6 +33,7 @@ api.defaults.adapter = async (config) => {
     data = fixtureCards.find((card) => card.word === input.word)
   } else if (config.url?.endsWith('/lookup-targets')) data = {status:'completed',targets:marks}
   else if (config.url?.endsWith('/dictionary/terms')) data = fixtureCards.map((card, i) => ({id:String(i),name:card.word,type:marks[i].type}))
+  else if (config.url?.endsWith('/characters/relations')) data = {nodes:[],links:[]}
   else if (config.url?.endsWith('/progress')) data = {current_chapter_number:1,current_char_offset:0,progress_percentage:0,updated_at:null}
   else if (config.url?.endsWith('/chapters')) data = [{id:1,chapter_number:1,title:'1. 설명 카드 검증',is_free:true}]
   else if (config.url?.endsWith('/chapters/1')) data = {id:1,chapter_number:1,title:'1. 설명 카드 검증',content,entities:marks}

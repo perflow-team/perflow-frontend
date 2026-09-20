@@ -8,6 +8,7 @@ import { useAuthStore } from '@/entities/user/model/useAuthStore'
 interface AssistSidebarProps {
   novelId: string
   episodeId: string
+  onClose: () => void
 }
 
 interface TabButtonProps {
@@ -32,7 +33,7 @@ function TabButton({ active, onClick, children }: TabButtonProps) {
   )
 }
 
-function AssistSidebar({ novelId, episodeId }: AssistSidebarProps) {
+function AssistSidebar({ novelId, episodeId, onClose }: AssistSidebarProps) {
   const activePanel = useAssistPanelStore((s) => s.activePanel)
   const setActivePanel = useAssistPanelStore((s) => s.setActivePanel)
   const userId = useAuthStore((s) => s.user?.id ?? 'guest')
@@ -43,10 +44,12 @@ function AssistSidebar({ novelId, episodeId }: AssistSidebarProps) {
     <>
       <div
         className="fixed inset-0 z-30 bg-neutral-900/40 lg:hidden"
-        onClick={() => setActivePanel('closed')}
+        onClick={onClose}
         role="presentation"
       />
-      <aside aria-label="독서 도우미" className="fixed inset-x-0 bottom-0 z-40 flex h-[70dvh] flex-col rounded-t-2xl bg-white shadow-2xl lg:static lg:h-full lg:w-80 lg:shrink-0 lg:rounded-none lg:border-l lg:border-neutral-200 lg:shadow-none">
+      <aside id="reader-assist-panel" aria-label="독서 도우미" onKeyDown={(event) => {
+        if (event.key === 'Escape') { event.stopPropagation(); onClose() }
+      }} className="fixed inset-x-0 bottom-0 z-40 flex h-[70dvh] flex-col rounded-t-2xl bg-white shadow-2xl lg:static lg:h-full lg:w-80 lg:shrink-0 lg:rounded-none lg:border-l lg:border-neutral-200 lg:shadow-none">
         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 pl-1 pr-2">
           <div role="tablist" aria-label="독서 도우미 탭" className="flex gap-1">
             <TabButton active={activePanel === 'chat'} onClick={() => setActivePanel('chat')}>
@@ -61,8 +64,9 @@ function AssistSidebar({ novelId, episodeId }: AssistSidebarProps) {
           </div>
           <button
             type="button"
-            onClick={() => setActivePanel('closed')}
+            onClick={onClose}
             aria-label="패널 닫기"
+            autoFocus
             className="rounded-full p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
           >
             <X size={18} />
