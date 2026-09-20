@@ -1,0 +1,31 @@
+{
+  "content": "솔빛정자는 마을의 작은 쉼터다. 다온은 솔빛정자에서 비를 피했다.",
+  "card": {
+    "word": "솔빛정자",
+    "title": "솔빛정자",
+    "type": "PLACE",
+    "tag": "장소",
+    "fields": [
+      {
+        "label": "첫 등장 페이지",
+        "value": "1화 · 1번째 문단 (스크롤 기준)"
+      },
+      {
+        "label": "주요 사건",
+        "value": "다온이 비를 피한 마을의 작은 쉼터다."
+      },
+      {
+        "label": "연관 인물",
+        "value": "다온"
+      }
+    ],
+    "first_appearance": {
+      "chapter_number": 1,
+      "paragraph_number": 1,
+      "char_offset": 0
+    },
+    "is_spoiler_filtered": true,
+    "source": "reading_card",
+    "card_version": "reader-card-v2"
+  }
+}

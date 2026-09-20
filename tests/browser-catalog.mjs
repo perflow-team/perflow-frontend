@@ -37,7 +37,7 @@ try {
       if (url.pathname === '/api/novels/ranking') {
         requests.push(url.search)
         if (failRanking) return route.fulfill({ status: 503, json: {}, headers: { 'Access-Control-Allow-Origin': '*' } })
-        return json(url.searchParams.get('sort') === 'new' ? [] : [...candidates].sort((a, b) => b[url.searchParams.get('sort') === 'popular' ? 'likes' : url.searchParams.get('sort')] - a[url.searchParams.get('sort') === 'popular' ? 'likes' : url.searchParams.get('sort')]))
+        return json(url.searchParams.get('sort') === 'new' ? [] : [...candidates].sort((a, b) => b[url.searchParams.get('sort') === 'popular' ? 'rating' : url.searchParams.get('sort')] - a[url.searchParams.get('sort') === 'popular' ? 'rating' : url.searchParams.get('sort')]))
       }
       if (url.pathname.endsWith('/chapters')) return json([{ id: 1, chapter_number: 1, title: '1화', is_free: true }])
       if (url.pathname.endsWith('/progress')) return json({ current_chapter_number: 1, current_char_offset: 0, progress_percentage: 0 })

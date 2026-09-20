@@ -25,7 +25,7 @@ test('reading-card request preserves occurrence and cutoff without forcing every
     const card = await fetchEntityCard({novelId:'4',word:'그곳',contextSentence:'그곳에 갔다.',
       currentChapterNumber:2,progress:0.4,currentCharOffset:200,selectionCharOffset:170})
     assert.equal(sent.url, '/api/ai/novels/4/dictionary')
-    assert.equal(sent.body.card_version, 'reader-card-v1')
+    assert.equal(sent.body.card_version, 'reader-card-v2')
     assert.equal(sent.body.current_char_offset, 200)
     assert.equal(sent.body.selection_char_offset, 170)
     assert.equal(sent.body.entity_type, undefined)
@@ -55,4 +55,15 @@ test('all four validated response types retain their exact modal labels and voca
   ])
   assert.equal(cards[3].tag, '')
   assert.equal(cards[3].title, cards[3].word)
+})
+
+
+test('classification is shared by icons, tags and fields and inconsistent responses fail closed', () => {
+  const place = {type:'PLACE',word:'점순네',title:'점순네',tag:'장소',fields:[{label:'주요 사건',value:'수탉이 싸웠다.'}]}
+  assert.equal(normalizeEntityCard(place, '점순네').type, 'PLACE')
+  assert.throws(() => normalizeEntityCard({...place, fields:[{label:'뜻',value:'점순이의 집.'}]}, '점순네'), /do not match/)
+  assert.throws(() => normalizeEntityCard({...place, tag:''}, '점순네'), /do not match/)
+  assert.throws(() => normalizeEntityCard({...place, type:'UNKNOWN'}, '점순네'), /Invalid dictionary type/)
+  assert.equal(normalizeEntityCard({word:'너',tag:'',type:null,fields:[{label:'설명',value:'확인 불가'}]}, '너').type, null)
+  assert.equal(normalizeEntityCard({word:'지전',tag:'',fields:[{label:'뜻',value:'종이돈.'}]}, '지전').type, 'WORD')
 })

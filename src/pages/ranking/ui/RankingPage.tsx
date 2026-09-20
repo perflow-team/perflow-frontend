@@ -28,7 +28,7 @@ export default function RankingPage() {
       <Header />
       <section className="mx-auto max-w-[1168px] px-4 py-10 md:px-10 md:py-16">
         <h1 className="text-title-large font-bold text-neutral-900 sm:text-headline-small">랭킹</h1>
-        <p className="mt-2 text-body-small text-neutral-500">{sort === 'new' ? '신작으로 등록된 작품을 최신 등록순으로 보여드려요.' : sort === 'popular' ? '좋아요가 많은 순으로 보여드려요.' : sort === 'rating' ? '10점 만점의 별점순이에요. 같은 별점은 조회수순으로 보여드려요.' : '누적 조회수가 높은 순으로 보여드려요.'}</p>
+        <p className="mt-2 text-body-small text-neutral-500">{sort === 'new' ? '신작으로 등록된 작품을 최신 등록순으로 보여드려요.' : sort === 'popular' ? '별점이 높은 순으로 보여드려요. 같은 별점은 조회수순이에요.' : sort === 'rating' ? '10점 만점의 별점순이에요. 같은 별점은 조회수순으로 보여드려요.' : '누적 조회수가 높은 순으로 보여드려요.'}</p>
         <div className="mt-5 flex gap-1 border-b border-neutral-200" aria-label="랭킹 기준">
           {SORTS.map(value => <button key={value} type="button" aria-pressed={sort === value} onClick={() => change(value)}
             className={`cursor-pointer px-3 py-3 text-label-large transition-colors sm:px-4 ${sort === value ? 'border-b-2 border-primary-600 font-semibold text-primary-700' : 'text-neutral-500 hover:bg-primary-50 hover:text-primary-700'}`}>

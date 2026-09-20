@@ -27,7 +27,7 @@ export async function fetchEntityCard({
     word,
     current_char_offset: currentCharOffset,
     selection_char_offset: selectionCharOffset,
-    card_version: 'reader-card-v1',
+    card_version: 'reader-card-v2',
     context_sentence: contextSentence,
     current_chapter_number: currentChapterNumber,
     progress_percentage: progress, // 0~1, unified across all endpoints per updated spec

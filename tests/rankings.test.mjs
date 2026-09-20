@@ -10,8 +10,8 @@ const ids = (novels) => novels.map((novel) => novel.id)
 const book = (id, fields = {}) => ({ id, views: 0, likes: 0, rating: 0, is_new: false, published_at: null, ...fields })
 
 test('views, popularity and new releases use different stored catalog fields', () => {
-  const books = [book(1, { views: 900, likes: 10 }), book(2, { views: 100, likes: 30 }),
-    book(3, { views: 500, likes: 20, is_new: true }), book(4, { is_new: true })]
+  const books = [book(1, { views: 900, likes: 100, rating: 8 }), book(2, { views: 100, likes: 0, rating: 9.5 }),
+    book(3, { views: 500, likes: 20, rating: 9, is_new: true }), book(4, { is_new: true })]
   assert.deepEqual(ids(rankNovels(books, 'views')), [1, 3, 2, 4])
   assert.deepEqual(ids(rankNovels(books, 'popular')), [2, 3, 1, 4])
   assert.deepEqual(ids(rankNovels(books, 'new')), [4, 3])
@@ -26,10 +26,10 @@ test('new releases retain undated flagged books and exclude future or unflagged 
   assert.deepEqual(ids(rankNovels(books, 'new', 10, Date.parse('2026-09-20T00:00:00Z'))), [2, 1, 5, 4])
 })
 
-test('ties are deterministic, ratings remain separate, and limits apply after sorting', () => {
+test('ties use views then ID, popularity matches ratings, and limits apply after sorting', () => {
   const books = [book(3, { views: 100, likes: 10, rating: 9 }),
     book(2, { views: 200, likes: 10, rating: 8 }), book(1, { views: 200, likes: 10, rating: 8 })]
-  assert.deepEqual(ids(rankNovels(books, 'popular', 2)), [1, 2])
+  assert.deepEqual(ids(rankNovels(books, 'popular', 2)), [3, 1])
   assert.deepEqual(ids(rankNovels(books, 'rating')), [3, 1, 2])
   assert.deepEqual(rankNovels(books, 'views', 0), [])
   assert.deepEqual(rankNovels([], 'new'), [])
@@ -40,7 +40,7 @@ test('ranking API works against the deployed legacy catalog without the unsuppor
     .replace("import { api } from '@/shared/api/base'", 'const api = globalThis.rankingApiFixture')
     .replace("import { rankNovels } from '../lib/rankNovels'", 'const rankNovels = globalThis.rankingSortFixture')
   const calls = []
-  const books = [book(1, { views: 500, likes: 5 }), book(2, { views: 50, likes: 10, is_new: true })]
+  const books = [book(1, { views: 500, likes: 50, rating: 8 }), book(2, { views: 50, likes: 10, rating: 9, is_new: true })]
   globalThis.rankingApiFixture = { get: async (url, options) => {
     calls.push({ url, options })
     assert.equal(url, '/api/novels')

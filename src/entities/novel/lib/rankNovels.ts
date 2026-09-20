@@ -25,11 +25,7 @@ export function rankNovels(novels: NovelSummary[], sort: RankingSort, limit = 10
       }
       return b.id - a.id
     }
-    if (sort === 'popular') {
-      const difference = metric(b.likes) - metric(a.likes)
-      if (difference) return difference
-    }
-    if (sort === 'rating') {
+    if (sort === 'popular' || sort === 'rating') {
       const difference = metric(b.rating) - metric(a.rating)
       if (difference) return difference
     }

@@ -15,7 +15,7 @@ export function useEntityCard({ novelId, episodeId, word, contextSentence, curre
   const progress = useReaderStore((s) => s.progress)
 
   return useQuery({
-    queryKey: ['entity', 'reader-card-v1', novelId, episodeId, word, currentCharOffset, selectionCharOffset],
+    queryKey: ['entity', 'reader-card-v2', novelId, episodeId, word, currentCharOffset, selectionCharOffset],
     queryFn: () =>
       fetchEntityCard({
         novelId,

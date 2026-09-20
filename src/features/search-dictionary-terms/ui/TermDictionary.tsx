@@ -73,9 +73,10 @@ function DictionaryEntry({ name, type, novelId, episodeId, currentCharOffset }: 
 }) {
   const [expanded, setExpanded] = useState(false)
   const [openedOffset, setOpenedOffset] = useState(currentCharOffset)
-  const TypeIcon = TYPE_ICONS[type] ?? BookOpen
   const { data, isPending, isError, refetch } = useEntityCard({ novelId, episodeId,
     word: expanded ? name : null, contextSentence: name, currentCharOffset: Math.min(openedOffset, currentCharOffset) })
+  const displayedType = expanded && data ? data.type : type
+  const TypeIcon = TYPE_ICONS[displayedType ?? 'WORD'] ?? BookOpen
   return <div className="rounded-lg border border-transparent hover:border-neutral-100">
     <button type="button" aria-expanded={expanded} onClick={() => {
       if (!expanded) setOpenedOffset(currentCharOffset)

@@ -20,7 +20,7 @@ const HERO_COVER_IDS = [1, 2, 3]
 
 const RANKING_SECTIONS: { sort: RankingSort; title: string; description: string; anchorId?: string }[] = [
   { sort: 'views', title: '조회수 랭킹', description: '누적 조회수가 높은 작품을 만나보세요.' },
-  { sort: 'popular', title: '인기 랭킹', description: '좋아요가 많은 작품을 만나보세요.' },
+  { sort: 'popular', title: '인기 랭킹', description: '별점이 높은 작품을 만나보세요.' },
   { sort: 'new', title: '신작', description: '신작으로 등록된 이야기를 만나보세요.', anchorId: 'update' },
 ]
 

@@ -3,7 +3,17 @@ export interface EntityCardField {
   value: string
 }
 
+const TAGS = { CHARACTER: '인물', PLACE: '장소', EVENT: '사건', WORD: '' } as const
+export type EntityCardType = keyof typeof TAGS
+const LABELS: Record<EntityCardType, string[]> = {
+  CHARACTER: ['첫 등장 페이지', '기본 설정', '주요 장면'],
+  PLACE: ['첫 등장 페이지', '주요 사건', '연관 인물'],
+  EVENT: ['첫 등장 페이지', '전개 과정', '영향 및 결과'],
+  WORD: ['뜻', '예문'],
+}
+
 export interface EntityCardData {
+  type: EntityCardType | null
   word: string
   title: string
   tag: string
@@ -39,10 +49,22 @@ export function normalizeEntityCard(response: unknown, requestedWord: string): E
   const explanation = text(response.explanation)
   if (fields.length === 0 && explanation) fields.push({ label: '설명', value: explanation })
 
+  // Versioned cards use one classification for the icon, tag and field labels.
+  // Legacy responses can still infer a classification from their displayed tag.
+  const explicitType = text(response.type)
+  if (explicitType && !Object.hasOwn(TAGS, explicitType)) throw new Error('Invalid dictionary type')
+  const type: EntityCardType | null = explicitType as EntityCardType ||
+    (Object.keys(TAGS) as EntityCardType[]).find((kind) =>
+      TAGS[kind] === text(response.tag) && (kind !== 'WORD' || fields.some((field) => field.label === '뜻'))) || null
+  if (type && (text(response.tag) !== TAGS[type] || fields.some((field) => !LABELS[type].includes(field.label)))) {
+    throw new Error('Dictionary type and explanation do not match')
+  }
+
   return {
+    type,
     word: text(response.word) || requestedWord,
     title: text(response.title) || text(response.word) || requestedWord,
-    tag: text(response.tag),
+    tag: type ? TAGS[type] : text(response.tag),
     fields,
     isSpoilerFiltered: response.is_spoiler_filtered === true,
   }
