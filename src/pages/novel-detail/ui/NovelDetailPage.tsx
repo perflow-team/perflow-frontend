@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, BookOpen, ChevronRight, Eye, Heart, Star } from 'lucide-react'
+import { ArrowRight, BookOpen, ChevronRight, Eye, Star } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import Header from '@/widgets/header/ui/Header'
 import { fetchChapters } from '@/entities/chapter/api/chapterApi'
 import { fetchNovel } from '@/entities/novel/api/novelApi'
-import { useToggleLike } from '@/entities/novel/lib/useToggleLike'
+import NovelLikeButton from '@/features/favorite-novel/ui/NovelLikeButton'
+import { useAuthStore } from '@/entities/user/model/useAuthStore'
 import { formatViews } from '@/shared/lib/formatViews'
 import NovelCoverPlaceholder from '@/entities/novel/ui/NovelCoverPlaceholder'
 import PreparingOverlay from '@/entities/novel/ui/PreparingOverlay'
@@ -17,9 +18,10 @@ import { useDocumentTitle } from '@/shared/lib/useDocumentTitle'
 
 function NovelDetailPage() {
   const { novelId = '1' } = useParams()
+  const userId = useAuthStore((s) => s.user?.id ?? null)
 
   const { data: novel, isLoading: novelLoading } = useQuery({
-    queryKey: ['novel', novelId],
+    queryKey: ['novel', novelId, userId],
     queryFn: () => fetchNovel(novelId),
   })
   const { data: chapters, isLoading: chaptersLoading } = useQuery({
@@ -29,7 +31,6 @@ function NovelDetailPage() {
 
   const firstChapter = chapters?.[0]
 
-  const { liked, count: likesCount, toggle: handleLikeClick } = useToggleLike(Number(novelId), novel?.likes)
 
   const genreTags = [...new Set((novel?.tags ?? []).filter((tag) => !tag.startsWith('#')))]
   const subGenreTags = [...new Set((novel?.tags ?? []).filter((tag) => tag.startsWith('#')))]
@@ -73,7 +74,7 @@ function NovelDetailPage() {
                 <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-label-large text-neutral-500 sm:justify-start">
                   <span className="inline-flex items-center gap-1">
                     <Star size={16} className="text-primary-500" />
-                    {novel.rating > 0 ? novel.rating.toFixed(1) : '평가 전'}
+                    {novel.rating > 0 ? `${novel.rating.toFixed(1)} / 10` : '평가 전'}
                   </span>
                   <span className="inline-flex items-center gap-1">
                     <Eye size={16} className="text-neutral-400" />
@@ -85,6 +86,8 @@ function NovelDetailPage() {
                   {novel.description ?? '아직 작품 소개가 등록되지 않았어요.'}
                 </p>
 
+                {novel.original_title && <p className="text-body-small text-neutral-600"><span className="mr-2 font-medium">원제</span>{novel.original_title}</p>}
+                {novel.edition_note && <p className="text-label-small text-neutral-500">{novel.edition_note}</p>}
                 {genreTags.length > 0 && (
                   <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 sm:justify-start">
                     <span className="text-label-large text-neutral-400">장르</span>
@@ -111,10 +114,7 @@ function NovelDetailPage() {
                       </Button>
                     </Link>
                   )}
-                  <Button variant="outline" onClick={handleLikeClick}>
-                    <Heart size={16} className={liked ? 'fill-primary-600 text-primary-600' : ''} />
-                    {liked ? '좋아요 취소' : '좋아요'} {formatViews(likesCount)}
-                  </Button>
+                  <NovelLikeButton key={`${novel.id}:${userId}`} novel={novel} userId={userId} />
                 </div>
               </>
             )}

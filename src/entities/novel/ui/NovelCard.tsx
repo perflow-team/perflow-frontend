@@ -24,7 +24,7 @@ interface NovelCardProps {
 }
 
 function NovelCard({ id, title, author, coverImageUrl, tags, views, rating, likes, rank, fluid = false }: NovelCardProps) {
-  const { liked, count: likeCount, toggle } = useToggleLike(id, likes)
+  const { liked, count: likeCount, toggle, isPending, isError } = useToggleLike(id, likes)
 
   const handleLikeToggle = (event: MouseEvent | KeyboardEvent) => {
     event.preventDefault()
@@ -63,13 +63,14 @@ function NovelCard({ id, title, author, coverImageUrl, tags, views, rating, like
         </h3>
         <span className="text-label-medium text-neutral-500">{author}</span>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-label-small text-neutral-500">
-          {rating !== undefined && <span className="inline-flex items-center gap-1"><Star size={12} className="text-primary-500" />{rating > 0 ? rating.toFixed(1) : '평가 전'}</span>}
+          {rating !== undefined && <span className="inline-flex items-center gap-1"><Star size={12} className="text-primary-500" />{rating > 0 ? `${rating.toFixed(1)} / 10` : '평가 전'}</span>}
           {views !== undefined && <span>조회 {formatViews(views)}</span>}
           <span
             role="button"
-            tabIndex={0}
+            tabIndex={isPending ? -1 : 0}
+            aria-disabled={isPending}
             aria-pressed={liked}
-            aria-label={liked ? '좋아요 취소' : '좋아요'}
+            aria-label={`${liked ? '좋아요 취소' : '좋아요'} ${likeCount.toLocaleString('ko-KR')}개`}
             onClick={handleLikeToggle}
             onKeyDown={(event) => {
               if (event.key === 'Enter' || event.key === ' ') handleLikeToggle(event)
@@ -77,8 +78,9 @@ function NovelCard({ id, title, author, coverImageUrl, tags, views, rating, like
             className="inline-flex cursor-pointer items-center gap-1 rounded outline-none hover:text-primary-600 focus-visible:ring-2 focus-visible:ring-primary-400"
           >
             <Heart size={12} className={liked ? 'fill-primary-500 text-primary-500' : 'text-primary-500'} />
-            {formatViews(likeCount)}
+            좋아요 {likeCount.toLocaleString('ko-KR')}
           </span>
+          {isError && <span role="alert">좋아요를 처리하지 못했어요. 다시 눌러주세요.</span>}
         </div>
         <NovelTags tags={tags} limit={3} className="mt-1" />
       </div>

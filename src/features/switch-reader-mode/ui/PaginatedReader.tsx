@@ -103,7 +103,7 @@ const PaginatedReader = forwardRef<ReaderHandle, PaginatedReaderProps>(
         <div ref={measureRef} aria-hidden="true" data-reader-measurer="" className="pointer-events-none invisible fixed left-0 top-0 -z-10">
           <ReaderContentBlocks content={content} entities={[]} prefs={prefs} onEntityTrigger={() => {}} />
         </div>
-        <ReaderContentBlocks content={pages[currentPage - 1] ?? []} entities={entities} prefs={prefs} onEntityTrigger={onEntityTrigger} />
+        <ReaderContentBlocks key={currentPage} content={pages[currentPage - 1] ?? []} entities={entities} prefs={prefs} onEntityTrigger={onEntityTrigger} />
       </div>
     )
   },

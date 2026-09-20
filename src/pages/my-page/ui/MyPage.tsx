@@ -20,13 +20,13 @@ function MyPage() {
   const user = useAuthStore((s) => s.user)
 
   const progressQuery = useQuery({
-    queryKey: ['reading-progress'],
+    queryKey: ['reading-progress', user?.id],
     queryFn: fetchReadingProgress,
     enabled: !!user,
     retry: false,
   })
   const favoritesQuery = useQuery({
-    queryKey: ['my-favorites'],
+    queryKey: ['my-favorites', user?.id ?? null],
     queryFn: fetchMyFavorites,
     enabled: !!user,
     retry: false,
@@ -153,7 +153,7 @@ function MyPage() {
             </div>
           </>
         ) : favoritesQuery.isError || !favoritesQuery.data ? (
-          <SectionNotice icon={Heart}>관심작 목록은 아직 준비 중이에요.</SectionNotice>
+          <SectionNotice icon={Heart}>관심작 목록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.</SectionNotice>
         ) : favoritesQuery.data.length === 0 ? (
           <SectionNotice icon={Heart}>등록한 관심작이 없어요.</SectionNotice>
         ) : (

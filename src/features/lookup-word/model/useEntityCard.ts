@@ -25,6 +25,7 @@ export function useEntityCard({ novelId, episodeId, word, contextSentence, curre
         currentCharOffset,
       }),
     enabled: word != null && contextSentence != null,
+    staleTime: 5 * 60_000,
     retry: false,
   })
 }

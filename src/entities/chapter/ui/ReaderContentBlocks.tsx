@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useParams } from 'react-router-dom'
+import { EntityPreview, type PreviewTarget } from '@/features/lookup-word/ui/EntityPreview'
 import type { ContentBlock, EntityMark } from '@/entities/chapter/model/types'
 import { useEntityTrigger } from '@/entities/chapter/lib/useEntityTrigger'
 
@@ -17,7 +19,33 @@ interface ReaderContentBlocksProps {
 }
 
 function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: ReaderContentBlocksProps) {
-  const { getHandlers } = useEntityTrigger(onEntityTrigger)
+  const { novelId = '1', episodeId = '1' } = useParams()
+  const [preview, setPreview] = useState<PreviewTarget | null>(null)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const cancelTimer = () => { if (timer.current) clearTimeout(timer.current) }
+  const dismiss = () => { cancelTimer(); setPreview(null) }
+  const leavePreview = () => { cancelTimer(); timer.current = setTimeout(() => setPreview(null), 180) }
+  const showPreview = (target: PreviewTarget) => {
+    cancelTimer()
+    timer.current = setTimeout(() => setPreview(target), 350)
+  }
+  const { getHandlers } = useEntityTrigger((...args) => { dismiss(); onEntityTrigger(...args) })
+  useEffect(() => {
+    const close = () => { if (timer.current) clearTimeout(timer.current); setPreview(null) }
+    const escape = (event: globalThis.KeyboardEvent) => { if (event.key === 'Escape') close() }
+    const onScroll = (event: Event) => {
+      if (!(event.target instanceof Element) || !event.target.closest('#reader-word-preview')) close()
+    }
+    window.addEventListener('keydown', escape)
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('resize', close)
+    return () => {
+      if (timer.current) clearTimeout(timer.current)
+      window.removeEventListener('keydown', escape)
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', close)
+    }
+  }, [])
 
   const renderBlock = (block: ContentBlock) => {
     const blockEnd = block.start + block.text.length
@@ -40,6 +68,17 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
         <span
           key={`e-${i}`}
           {...getHandlers(mark.word, block.contextSentence ?? block.text, mark.lookup_offset ?? mark.end_offset)}
+          onPointerEnter={(event) => {
+            if (event.pointerType !== 'mouse') return
+            const target = { word: mark.word, contextSentence: block.contextSentence ?? block.text,
+              currentCharOffset: mark.lookup_offset ?? mark.end_offset, rect: event.currentTarget.getBoundingClientRect() }
+            showPreview(target)
+          }}
+          onPointerLeave={leavePreview}
+          onFocus={(event) => showPreview({ word: mark.word, contextSentence: block.contextSentence ?? block.text,
+            currentCharOffset: mark.lookup_offset ?? mark.end_offset, rect: event.currentTarget.getBoundingClientRect() })}
+          onBlur={leavePreview}
+          aria-describedby={preview?.word === mark.word ? 'reader-word-preview' : undefined}
           role="button"
           tabIndex={0}
           aria-label={`${mark.word} 설명 보기`}
@@ -60,7 +99,7 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
   }
 
   return (
-    <div
+    <><div
       className={`space-y-3 [overflow-wrap:anywhere] ${prefs.nightMode ? 'text-neutral-200' : 'text-neutral-800'}`}
       style={{
         fontSize: `${prefs.fontSizeRem}rem`,
@@ -84,6 +123,8 @@ function ReaderContentBlocks({ content, entities, prefs, onEntityTrigger }: Read
         ),
       )}
     </div>
+    {preview && <EntityPreview target={preview} novelId={novelId} episodeId={episodeId} onEnter={cancelTimer} onLeave={leavePreview} />}
+    </>
   )
 }
 
