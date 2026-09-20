@@ -101,12 +101,12 @@ function ReaderShell({
 
   return (
     <div className={`flex h-svh flex-col ${nightMode ? 'bg-neutral-900' : 'bg-white'}`}>
-      <header className="relative z-50 flex h-14 shrink-0 items-center justify-between bg-neutral-900 px-4 text-white">
+      <header className="relative z-50 flex h-14 shrink-0 items-center justify-between bg-primary-600 px-4 text-white">
         <button
           type="button"
           onClick={() => navigate(`/novel/${novelId}`)}
           aria-label="뒤로 가기"
-          className="rounded-full p-2 hover:bg-neutral-800"
+          className="rounded-full p-2 hover:bg-primary-500"
         >
           <ArrowLeft size={20} />
         </button>
@@ -119,7 +119,7 @@ function ReaderShell({
               type="button"
               onClick={() => setSettingsOpen((v) => !v)}
               aria-label="읽기 설정"
-              className="rounded-full p-2 hover:bg-neutral-800"
+              className="rounded-full p-2 hover:bg-primary-500"
             >
               <Settings size={20} />
             </button>
@@ -167,7 +167,7 @@ function ReaderShell({
               aria-controls="reader-assist-panel"
               aria-expanded={activePanel !== 'closed'}
               title="챗봇 · 키워드 · 관계도"
-              className="group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[#7c80ff] text-white shadow-[0_4px_16px_rgba(60,60,130,0.25)] outline-none transition-[background-color,transform,box-shadow] hover:bg-[#686df0] hover:shadow-[0_6px_22px_rgba(60,60,130,0.32)] focus-visible:ring-4 focus-visible:ring-[#7c80ff]/40 focus-visible:ring-offset-4 active:scale-95 motion-reduce:transition-none lg:h-[72px] lg:w-[72px]"
+              className="group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-900/20 outline-none transition-[background-color,transform,box-shadow] hover:bg-primary-500 hover:shadow-xl hover:shadow-primary-900/25 focus-visible:ring-4 focus-visible:ring-primary-400/40 focus-visible:ring-offset-4 active:scale-95 motion-reduce:transition-none lg:h-[72px] lg:w-[72px]"
             >
               <span aria-hidden="true" className="pointer-events-none absolute -right-3 -top-10 flex h-12 w-12 items-center justify-center rounded-full rounded-bl-lg border-[5px] border-white bg-neutral-100 text-[27px] shadow-[0_2px_12px_rgba(0,0,0,0.14)] lg:-top-12 lg:h-14 lg:w-14 lg:text-[32px]">👩🏻‍💻</span>
               <MessageCircle aria-hidden="true" className="h-7 w-7 lg:h-9 lg:w-9" strokeWidth={2} />
