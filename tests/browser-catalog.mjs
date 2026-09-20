@@ -29,7 +29,11 @@ try {
       if (url.pathname === '/api/genres') return json(['드라마', '로맨스', '심리'])
       const genre = url.searchParams.get('genre')
       const candidates = genre ? books.filter(b => b.genres.includes(genre)) : books
-      if (url.pathname === '/api/novels') return json(candidates)
+      if (url.pathname === '/api/novels') {
+        requests.push(url.search)
+        if (failRanking) return route.fulfill({ status: 503, json: {}, headers: { 'Access-Control-Allow-Origin': '*' } })
+        return json(candidates)
+      }
       if (url.pathname === '/api/novels/ranking') {
         requests.push(url.search)
         if (failRanking) return route.fulfill({ status: 503, json: {}, headers: { 'Access-Control-Allow-Origin': '*' } })

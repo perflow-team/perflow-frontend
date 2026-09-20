@@ -44,8 +44,8 @@ export default function RankingPage() {
           : isPending ? <Skeleton className={`mt-8 ${CARD_ASPECT_CLASS} ${CARD_WIDTH_CLASS} rounded-lg`} />
           : data.length === 0 ? <p className="mt-8 rounded-xl bg-neutral-50 p-8 text-body-medium text-neutral-500">{sort === 'new' ? '신작으로 등록된 작품이 아직 없어요.' : '이 장르에는 아직 작품이 없어요.'}</p>
           : <>
-              <div className="mt-2 sm:hidden">{data.map((novel, i) => <NovelListRow key={novel.id} id={novel.id} title={novel.title} author={novel.author} coverImageUrl={novel.cover_image_url} tags={novel.tags} views={novel.views} rating={novel.rating} likes={novel.likes} isNew={novel.is_new} rank={sort === 'new' ? undefined : i + 1} />)}</div>
-              <div className="mt-8 hidden flex-wrap justify-center gap-x-6 gap-y-10 sm:flex sm:justify-start">{data.map((novel, i) => <NovelCard key={novel.id} id={novel.id} title={novel.title} author={novel.author} coverImageUrl={novel.cover_image_url} tags={novel.tags} views={novel.views} rating={novel.rating} likes={novel.likes} rank={sort === 'new' ? undefined : i + 1} />)}</div>
+              <div className="mt-2 sm:hidden">{data.map((novel, i) => <NovelListRow key={novel.id} id={novel.id} title={novel.title} author={novel.author} coverImageUrl={novel.cover_image_url} tags={novel.tags} views={novel.views} rating={novel.rating} likes={novel.likes} isNew={novel.is_new} rank={i + 1} />)}</div>
+              <div className="mt-8 hidden flex-wrap justify-center gap-x-6 gap-y-10 sm:flex sm:justify-start">{data.map((novel, i) => <NovelCard key={novel.id} id={novel.id} title={novel.title} author={novel.author} coverImageUrl={novel.cover_image_url} tags={novel.tags} views={novel.views} rating={novel.rating} likes={novel.likes} rank={i + 1} />)}</div>
             </>}
       </section>
     </div>

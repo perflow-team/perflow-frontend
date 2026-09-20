@@ -1,4 +1,5 @@
 import { api } from '@/shared/api/base'
+import { rankNovels } from '../lib/rankNovels'
 
 export interface NovelSummary {
   id: number
@@ -60,8 +61,9 @@ export const RANKING_LABELS: Record<RankingSort, string> = {
 }
 
 export async function fetchRanking(sort: RankingSort, limit = 10, genre?: string): Promise<NovelSummary[]> {
-  const { data } = await api.get<NovelSummary[]>('/api/novels/ranking', { params: { sort, limit, genre } })
-  return data
+  // The deployed legacy ranking endpoint rejects "popular" and drops undated
+  // new releases. Rank the full, genre-filtered catalog using its saved metrics.
+  return rankNovels(await fetchGenreNovels(genre), sort, limit)
 }
 
 export async function fetchNewNovels(genre?: string, limit = 100): Promise<NovelSummary[]> {

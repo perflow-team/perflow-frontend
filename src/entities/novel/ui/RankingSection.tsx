@@ -73,7 +73,7 @@ export default function RankingSection({ sort, title, description, genre, anchor
                 views={novel.views}
                 rating={novel.rating}
                 likes={novel.likes}
-                rank={sort === 'new' ? undefined : i + 1}
+                rank={i + 1}
                 fluid
               />
             ))}
@@ -90,7 +90,7 @@ export default function RankingSection({ sort, title, description, genre, anchor
                 views={novel.views}
                 rating={novel.rating}
                 likes={novel.likes}
-                rank={sort === 'new' ? undefined : i + 1}
+                rank={i + 1}
               />
             ))}
           </div>
@@ -108,7 +108,7 @@ export default function RankingSection({ sort, title, description, genre, anchor
               views={novel.views}
               rating={novel.rating}
               likes={novel.likes}
-              rank={sort === 'new' ? undefined : i + 1}
+              rank={i + 1}
             />
           ))}
         </ScrollCarousel>
