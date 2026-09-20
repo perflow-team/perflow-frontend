@@ -27,7 +27,8 @@ export async function fetchEntityCard({
     word,
     current_char_offset: currentCharOffset,
     selection_char_offset: selectionCharOffset,
-    card_version: 'reader-card-v2',
+    // Keep the wire version compatible while the server rolls out v2 rules.
+    card_version: 'reader-card-v1',
     context_sentence: contextSentence,
     current_chapter_number: currentChapterNumber,
     progress_percentage: progress, // 0~1, unified across all endpoints per updated spec

@@ -26,7 +26,7 @@ api.defaults.adapter = async (config) => {
   let data: unknown
   if (config.url?.endsWith('/dictionary')) {
     const input = JSON.parse(config.data)
-    if (input.card_version !== 'reader-card-v2') throw new AxiosError('Missing card version')
+    if (input.card_version !== 'reader-card-v1') throw new AxiosError('Missing card version')
     const mark = marks.find((entry) => entry.word === input.word)
     if (input.selection_char_offset !== undefined && input.selection_char_offset !== mark?.start_offset) throw new AxiosError('Wrong occurrence')
     await new Promise((resolve) => setTimeout(resolve, 200))

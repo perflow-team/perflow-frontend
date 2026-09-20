@@ -25,7 +25,7 @@ test('reading-card request preserves occurrence and cutoff without forcing every
     const card = await fetchEntityCard({novelId:'4',word:'그곳',contextSentence:'그곳에 갔다.',
       currentChapterNumber:2,progress:0.4,currentCharOffset:200,selectionCharOffset:170})
     assert.equal(sent.url, '/api/ai/novels/4/dictionary')
-    assert.equal(sent.body.card_version, 'reader-card-v2')
+    assert.equal(sent.body.card_version, 'reader-card-v1')
     assert.equal(sent.body.current_char_offset, 200)
     assert.equal(sent.body.selection_char_offset, 170)
     assert.equal(sent.body.entity_type, undefined)
