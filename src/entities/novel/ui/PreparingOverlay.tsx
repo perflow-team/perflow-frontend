@@ -1,5 +1,4 @@
 interface PreparingOverlayProps {
-  /** Shorter label for cramped thumbnails (e.g. the mobile list row). */
   short?: boolean
 }
 

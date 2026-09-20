@@ -4,8 +4,6 @@ import { throttle } from '@/shared/lib/throttle'
 import { useReaderStore } from '@/entities/reading-progress/model/useReaderStore'
 import { useAuthStore } from '@/entities/user/model/useAuthStore'
 
-// Finish the previous episode's save before saving the next episode, even on a
-// slow connection. The server stores only the most recent position per novel.
 let pendingSave = Promise.resolve()
 
 interface UseReaderProgressParams {

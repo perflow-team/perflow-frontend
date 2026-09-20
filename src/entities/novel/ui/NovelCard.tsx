@@ -19,7 +19,6 @@ interface NovelCardProps {
   rating?: number
   likes?: number
   rank?: number
-  /** Fills its parent's width instead of the fixed card size — for a CSS grid column. */
   fluid?: boolean
 }
 

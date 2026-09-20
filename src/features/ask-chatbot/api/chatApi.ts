@@ -4,7 +4,7 @@ interface SendChatMessageParams {
   novelId: string
   message: string
   currentChapterNumber: number
-  progress: number // internal 0~1 scale
+  progress: number
 }
 
 interface ChatMessageResponse {
@@ -21,7 +21,7 @@ export async function sendChatMessage({
   const { data } = await api.post<ChatMessageResponse>(`/api/ai/chat/${novelId}/message`, {
     message,
     current_chapter_number: currentChapterNumber,
-    progress_percentage: progress, // 0~1, unified across all endpoints per updated spec
+    progress_percentage: progress,
   })
   return data
 }

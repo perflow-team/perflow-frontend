@@ -3,7 +3,7 @@ import { api } from '@/shared/api/base'
 interface ProgressResponse {
   current_chapter_number: number
   current_char_offset: number
-  progress_percentage: number // 0~1, unified across all endpoints per updated spec
+  progress_percentage: number
   updated_at: string | null
 }
 
@@ -16,7 +16,7 @@ interface UpdateProgressParams {
   novelId: string
   currentChapterNumber: number
   currentCharOffset: number
-  progress: number // internal 0~1 scale
+  progress: number
 }
 
 export async function updateProgress({

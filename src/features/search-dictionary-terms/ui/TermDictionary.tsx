@@ -14,12 +14,11 @@ const TYPE_LABELS: Record<string, string> = {
   CHARACTER: '인물',
   PLACE: '장소',
   EVENT: '사건',
-  WORD: '단어',
+  WORD: '용어',
 }
 
 const TYPE_ICONS: Record<string, typeof User> = { CHARACTER: User, PLACE: MapPin, EVENT: Flame, WORD: BookOpen }
 
-// Both list and card queries use the chapter-scoped reading cutoff.
 function TermDictionary({ novelId, episodeId }: TermDictionaryProps) {
   const [query, setQuery] = useState('')
   const currentCharOffset = useReaderStore((s) => s.cutoff.scope === `${novelId}:${episodeId}` ? s.cutoff.offset : 0)

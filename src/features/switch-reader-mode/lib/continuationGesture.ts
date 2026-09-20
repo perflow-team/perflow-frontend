@@ -1,5 +1,3 @@
-// A new gesture after a short pause is required at the end. Scroll/resize events
-// alone can never advance, and a single gesture can only advance once.
 export function createContinuationGesture(now: number) {
   let endSince: number | null = null
   let lastWheel = now

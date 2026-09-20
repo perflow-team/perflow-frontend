@@ -4,7 +4,6 @@ interface NovelCoverPlaceholderProps {
   id: number
   title: string
   author: string
-  /** For thumbnails much smaller than the grid card (e.g. the mobile list row). */
   compact?: boolean
 }
 

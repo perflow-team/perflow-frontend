@@ -19,9 +19,9 @@ const GENRE_TABS = ['전체', '로맨스', '드라마', '코미디']
 const HERO_COVER_IDS = [1, 2, 3]
 
 const RANKING_SECTIONS: { sort: RankingSort; title: string; description: string; anchorId?: string }[] = [
-  { sort: 'views', title: '조회수 랭킹', description: '누적 조회수가 높은 작품을 만나보세요.' },
-  { sort: 'popular', title: '인기 랭킹', description: '별점이 높은 작품을 만나보세요.' },
-  { sort: 'new', title: '신작', description: '신작으로 등록된 이야기를 만나보세요.', anchorId: 'update' },
+  { sort: 'views', title: '실시간 인기', description: '지금 가장 많이 읽히는 이야기를 만나보세요.' },
+  { sort: 'popular', title: '모두가 인정한 띵작', description: '별점이 높은, 검증된 이야기를 찾아보세요.' },
+  { sort: 'new', title: '오늘 나왔어요', description: '오늘 새로 올라온 따끈따끈한 이야기예요.', anchorId: 'update' },
 ]
 
 function NovelCardSkeleton() {

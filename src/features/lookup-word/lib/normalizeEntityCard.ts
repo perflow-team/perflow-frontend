@@ -49,8 +49,6 @@ export function normalizeEntityCard(response: unknown, requestedWord: string): E
   const explanation = text(response.explanation)
   if (fields.length === 0 && explanation) fields.push({ label: '설명', value: explanation })
 
-  // Versioned cards use one classification for the icon, tag and field labels.
-  // Legacy responses can still infer a classification from their displayed tag.
   const explicitType = text(response.type)
   if (explicitType && !Object.hasOwn(TAGS, explicitType)) throw new Error('Invalid dictionary type')
   const type: EntityCardType | null = explicitType as EntityCardType ||

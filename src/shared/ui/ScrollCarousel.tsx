@@ -25,11 +25,6 @@ function animateScrollTo(el: HTMLElement, to: number, duration: number, onDone?:
 
 interface ScrollCarouselProps {
   children: ReactNode
-  /**
-   * Vertical center of the prev/next buttons as Tailwind `top-*` classes,
-   * matching the row's card art height at each breakpoint. Defaults to
-   * NovelCard's own responsive cover height (128/168/230px wide, 23:30).
-   */
   buttonTopClassName?: string
 }
 

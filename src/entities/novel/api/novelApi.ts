@@ -61,8 +61,6 @@ export const RANKING_LABELS: Record<RankingSort, string> = {
 }
 
 export async function fetchRanking(sort: RankingSort, limit = 10, genre?: string): Promise<NovelSummary[]> {
-  // The deployed legacy ranking endpoint rejects "popular" and drops undated
-  // new releases. Rank the full, genre-filtered catalog using its saved metrics.
   return rankNovels(await fetchGenreNovels(genre), sort, limit)
 }
 

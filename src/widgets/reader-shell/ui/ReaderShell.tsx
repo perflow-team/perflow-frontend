@@ -166,11 +166,9 @@ function ReaderShell({
               aria-label="독서 도우미 열기"
               aria-controls="reader-assist-panel"
               aria-expanded={activePanel !== 'closed'}
-              title="챗봇 · 키워드 · 관계도"
-              className="group relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-900/20 outline-none transition-[background-color,transform,box-shadow] hover:bg-primary-500 hover:shadow-xl hover:shadow-primary-900/25 focus-visible:ring-4 focus-visible:ring-primary-400/40 focus-visible:ring-offset-4 active:scale-95 motion-reduce:transition-none lg:h-[72px] lg:w-[72px]"
+              className="group relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-primary-600 text-white shadow-lg shadow-primary-900/20 outline-none transition-[background-color,transform,box-shadow] hover:bg-primary-500 hover:shadow-xl hover:shadow-primary-900/25 focus-visible:ring-4 focus-visible:ring-primary-400/40 focus-visible:ring-offset-4 active:scale-95 motion-reduce:transition-none lg:h-14 lg:w-14"
             >
-              <span aria-hidden="true" className="pointer-events-none absolute -right-3 -top-10 flex h-12 w-12 items-center justify-center rounded-full rounded-bl-lg border-[5px] border-white bg-neutral-100 text-[27px] shadow-[0_2px_12px_rgba(0,0,0,0.14)] lg:-top-12 lg:h-14 lg:w-14 lg:text-[32px]">👩🏻‍💻</span>
-              <MessageCircle aria-hidden="true" className="h-7 w-7 lg:h-9 lg:w-9" strokeWidth={2} />
+              <MessageCircle aria-hidden="true" className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
               <span aria-hidden="true" className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-lg bg-neutral-900 px-3 py-2 text-label-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">챗봇 · 키워드 · 관계도</span>
             </button>
           </div>
